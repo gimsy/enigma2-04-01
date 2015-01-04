@@ -151,6 +151,7 @@ class BackupSelection(Screen):
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Save"))
 		self["key_yellow"] = StaticText()
+		self["summary_description"] = StaticText("")
 
 		self.selectedFiles = config.plugins.configurationbackup.backupdirs.value
 		defaultDir = '/'
@@ -185,6 +186,7 @@ class BackupSelection(Screen):
 
 	def selectionChanged(self):
 		current = self["checkList"].getCurrent()[0]
+		self["summary_description"].text = current[3]
 		if current[2] is True:
 			self["key_yellow"].setText(_("Deselect"))
 		else:
@@ -241,6 +243,7 @@ class RestoreMenu(Screen):
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Restore"))
 		self["key_yellow"] = StaticText(_("Delete"))
+		self["summary_description"] = StaticText("")
 
 		self.sel = []
 		self.val = []
@@ -252,7 +255,9 @@ class RestoreMenu(Screen):
 		self["actions"] = NumberActionMap(["SetupActions"],
 		{
 			"ok": self.KeyOk,
-			"cancel": self.keyCancel
+			"cancel": self.keyCancel,
+			"up": self.keyUp,
+			"down": self.keyDown
 		}, -1)
 
 		self["shortcuts"] = ActionMap(["ShortcutActions"],
@@ -268,6 +273,7 @@ class RestoreMenu(Screen):
 
 	def layoutFinished(self):
 		self.setWindowTitle()
+		self.checkSummary()
 
 	def setWindowTitle(self):
 		self.setTitle(_("Restore backups"))
@@ -295,10 +301,18 @@ class RestoreMenu(Screen):
 	def keyCancel(self):
 		self.close()
 
+	def keyUp(self):
+		self["filelist"].up()
+		self.checkSummary()
+
+	def keyDown(self):
+		self["filelist"].down()
+		self.checkSummary()
+
 	def startRestore(self, ret = False):
 		if ret == True:
 			self.exe = True
-			self.session.open(Console, title = _("Restoring..."), cmdlist = ["tar -xzvf " + self.path + "/" + self.sel + " -C /", "killall -9 enigma2"])
+			self.session.open(Console, title = _("Restoring..."), cmdlist = ["rm -R /etc/enigma2", "tar -xzvf " + self.path + "/" + self.sel + " -C /", "killall -9 enigma2"])
 
 	def deleteFile(self):
 		if (self.exe == False) and (self.entry == True):
@@ -315,6 +329,10 @@ class RestoreMenu(Screen):
 				remove(self.val)
 			self.exe = False
 			self.fill_list()
+
+	def checkSummary(self):
+		cur = self["filelist"].getCurrent()
+		self["summary_description"].text = cur
 
 class RestoreScreen(Screen, ConfigListScreen):
 	skin = """
@@ -351,9 +369,9 @@ class RestoreScreen(Screen, ConfigListScreen):
 
 	def doRestore(self):
 		if path.exists("/proc/stb/vmpeg/0/dst_width"):
-			restorecmdlist = ["tar -xzvf " + self.fullbackupfilename + " -C /", "echo 0 > /proc/stb/vmpeg/0/dst_height", "echo 0 > /proc/stb/vmpeg/0/dst_left", "echo 0 > /proc/stb/vmpeg/0/dst_top", "echo 0 > /proc/stb/vmpeg/0/dst_width"]
+			restorecmdlist = ["rm -R /etc/enigma2", "tar -xzvf " + self.fullbackupfilename + " -C /", "echo 0 > /proc/stb/vmpeg/0/dst_height", "echo 0 > /proc/stb/vmpeg/0/dst_left", "echo 0 > /proc/stb/vmpeg/0/dst_top", "echo 0 > /proc/stb/vmpeg/0/dst_width"]
 		else:
-			restorecmdlist = ["tar -xzvf " + self.fullbackupfilename + " -C /"]
+			restorecmdlist = ["rm -R /etc/enigma2", "tar -xzvf " + self.fullbackupfilename + " -C /"]
 		print"[SOFTWARE MANAGER] Restore Settings !!!!"
 
 		self.session.open(Console, title = _("Restoring..."), cmdlist = restorecmdlist, finishedCallback = self.restoreFinishedCB)
@@ -363,12 +381,41 @@ class RestoreScreen(Screen, ConfigListScreen):
 
 	def checkPlugins(self):
 		if path.exists("/tmp/installed-list.txt"):
-			self.session.openWithCallback(self.restartGUI, installedPlugins)
+			if os.path.exists("/media/hdd/images/config/noplugins") and config.misc.firstrun.value:
+				self.userRestoreScript()
+			else:
+				self.session.openWithCallback(self.userRestoreScript, installedPlugins)
 		else:
-			self.restartGUI()
+			self.userRestoreScript()
+
+	def userRestoreScript(self, ret = None):
+		SH_List = []
+		SH_List.append('/media/hdd/images/config/myrestore.sh')
+		SH_List.append('/media/usb/images/config/myrestore.sh')
+		SH_List.append('/media/cf/images/config/myrestore.sh')
+		
+		startSH = None
+		for SH in SH_List:
+			if path.exists(SH):
+				startSH = SH
+				break
+		
+		if startSH:
+			self.session.openWithCallback(self.restoreMetrixSkin, Console, title = _("Running Myrestore script, Please wait ..."), cmdlist = [startSH], closeOnSuccess = True)
+		else:
+			self.restoreMetrixSkin()
 
 	def restartGUI(self, ret = None):
 		self.session.open(Console, title = _("Your %s %s will Reboot...")% (getMachineBrand(), getMachineName()), cmdlist = ["init 4;reboot"])
+
+	def restoreMetrixSkin(self, ret = None):
+		try:
+			from Plugins.Extensions.MyMetrixLite.MainSettingsView import MainSettingsView
+			print"Restoring MyMetrixLite..."
+			MainSettingsView(None,True)
+		except:
+			pass
+		self.restartGUI()
 
 	def runAsync(self, finished_cb):
 		self.doRestore()
@@ -383,6 +430,7 @@ class RestartNetwork(Screen):
 			</screen> """
 		self.skin = skin
 		self["label"] = Label(_("Please wait while your network is restarting..."))
+		self["summary_description"] = StaticText(_("Please wait while your network is restarting..."))
 		self.onShown.append(self.setWindowTitle)
 		self.onLayoutFinish.append(self.restartLan)
 
@@ -406,14 +454,14 @@ class installedPlugins(Screen):
 
 	skin = """
 		<screen position="center,center" size="600,100" title="Install Plugins" >
-		<widget name="label" position="10,30" size="570,50" halign="center" font="Regular;20" transparent="1" foregroundColor="white" />
-		<widget name="filelist" position="5,50" size="550,230" scrollbarMode="showOnDemand" />
+		<widget name="label" position="10,30" size="500,50" halign="center" font="Regular;20" transparent="1" foregroundColor="white" />
 		</screen>"""
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		Screen.setTitle(self, _("Install Plugins"))
 		self["label"] = Label(_("Please wait while we check your installed plugins..."))
+		self["summary_description"] = StaticText(_("Please wait while we check your installed plugins..."))
 		self.type = self.UPDATE
 		self.container = eConsoleAppContainer()
 		self.container.appClosed.append(self.runFinished)
@@ -487,11 +535,14 @@ class RestorePlugins(Screen):
 		Screen.setTitle(self, _("Restore Plugins"))
 		self.index = 0
 		self.list = menulist
+		for r in menulist:
+			print "[SOFTWARE MANAGER] Plugin to restore: %s" % r[0]
 		self.container = eConsoleAppContainer()
 		self["menu"] = List(list())
 		self["menu"].onSelectionChanged.append(self.selectionChanged)
 		self["key_green"] = Button(_("Install"))
 		self["key_red"] = Button(_("Cancel"))
+		self["summary_description"] = StaticText("")
 				
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions"],
 				{
@@ -508,6 +559,8 @@ class RestorePlugins(Screen):
 
 	def setWindowTitle(self):
 		self.setTitle(_("Restore Plugins"))
+		if os.path.exists("/media/hdd/images/config/plugins") and config.misc.firstrun.value:
+			self.green()
 
 	def exit(self):
 		self.close()
@@ -549,6 +602,8 @@ class RestorePlugins(Screen):
 		index = self["menu"].getIndex()
 		if index == None:
 			index = 0
+		else:
+			self["summary_description"].text = self["menu"].getCurrent()[0]
 		self.index = index
 			
 	def drawList(self):
@@ -562,7 +617,7 @@ class RestorePlugins(Screen):
 		ipkname = ipkname + "*"
 		search_dirs = [ "/media/hdd", "/media/usb" ]
 		sdirs = " ".join(search_dirs)
-		cmd = 'find %s -name "%s" | head -n 1' % (sdirs, ipkname)
+		cmd = 'find %s -name "%s" | grep -iv "./open-multiboot/*" | head -n 1' % (sdirs, ipkname)
 		res = popen(cmd).read()
 		if res == "":
 			return None

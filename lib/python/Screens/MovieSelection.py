@@ -1956,8 +1956,8 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase):
 		self.session.open(NetworkSetup.NetworkMountsMenu)
 
 	def showDeviceMounts(self):
-		from Plugins.SystemPlugins.DeviceManager.plugin import *
-		self.session.open(HddSetup)
+		from Plugins.Extensions.Infopanel.MountManager import HddMount
+		self.session.open(HddMount)
 
 	def showActionFeedback(self, text):
 		if self.feedbackTimer is None:

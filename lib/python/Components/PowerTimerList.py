@@ -1,4 +1,4 @@
-from enigma import eListboxPythonMultiContent, eListbox, gFont, \
+from enigma import eListboxPythonMultiContent, eListbox, gFont, getDesktop, \
 	RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_TOP, RT_VALIGN_BOTTOM
 
 from HTMLComponent import HTMLComponent
@@ -30,7 +30,6 @@ def getafterEvent(timer):
 		AFTEREVENT.DEEPSTANDBY: _("Deep Standby")
 		}[timer.afterEvent]
 	return afterevent
-
 
 class PowerTimerList(HTMLComponent, GUIComponent, object):
 #

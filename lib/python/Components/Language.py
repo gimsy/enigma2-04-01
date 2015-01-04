@@ -160,7 +160,7 @@ class Language:
 			else:
 				os.system("opkg remove --autoremove --force-depends " + Lpackagename + delLang[:2])
 		else:
-			print "Delete all lang except ", lang
+			print"Delete all lang except ", lang
 			ll = os.listdir(LPATH)
 			for x in ll:
 				if len(x) > 2:
@@ -173,7 +173,7 @@ class Language:
 						os.system("opkg remove --autoremove --force-depends " + Lpackagename + x)
 					elif x == "pt":
 						if x != lang:
-							os.system("opkg remove " + Lpackagename + x)
+							os.system("opkg remove --autoremove --force-depends " + Lpackagename + x)
 			
 			os.system("touch /etc/enigma2/.removelang")
 

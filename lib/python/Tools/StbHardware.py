@@ -10,6 +10,8 @@ def getFPVersion():
 			file = open("/proc/stb/info/micomver", "r")
 			ret = file.readline().strip()
 			file.close()
+		elif getBoxType() in ('dm7080','dm820'):
+			ret = open("/proc/stb/fp/version", "r").read()
 		else:	
 			ret = long(open("/proc/stb/fp/version", "r").read())
 	except IOError:
@@ -35,10 +37,16 @@ def setFPWakeuptime(wutime):
 
 def setRTCoffset():
 	import time
-	if time.localtime().tm_isdst == 0:
-		forsleep = 7200+time.timezone
+	if getBrandOEM() in ('fulan'):
+		if time.localtime().tm_isdst == 0:
+			forsleep = 0-time.timezone
+		else:
+			forsleep = 3600+time.timezone
 	else:
-		forsleep = 3600-time.timezone
+		if time.localtime().tm_isdst == 0:
+			forsleep = 7200+time.timezone
+		else:
+			forsleep = 3600-time.timezone
 
 	t_local = time.localtime(int(time.time()))
 
@@ -51,7 +59,7 @@ def setRTCoffset():
 		print "set RTC Offset failed!"
 
 def setRTCtime(wutime):
-	if getBoxType() in ('gb800solo', 'gb800se', 'gb800ue') or getBrandOEM().startswith('ini'):
+	if getBoxType() in ('gb800solo', 'gb800se', 'gb800ue') or getBrandOEM().startswith('ini') or getBrandOEM() in ('fulan'):
 		setRTCoffset() 
 	try:
 		f = open("/proc/stb/fp/rtc", "w")

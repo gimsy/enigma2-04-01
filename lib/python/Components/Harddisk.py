@@ -517,7 +517,7 @@ class Harddisk:
 			Console().ePopen(("sdparm", "sdparm", "--flexible", "--readonly", "--command=stop", self.disk_path))
 		else:
 			Console().ePopen(("hdparm", "hdparm", "-y", self.disk_path))
-			
+
 	def setIdleTime(self, idle):
 		self.max_idle_time = idle
 		if self.idle_running:
@@ -639,6 +639,21 @@ DEVICEDB = \
 		"/devices/pci0000:01/0000:01:00.0/host0/target0:0:0/0:0:0:0": _("SATA"),
 		"/devices/platform/brcm-ehci.0/usb1/1-2/1-2:1.0": _("Upper USB"),
 		"/devices/platform/brcm-ehci.0/usb1/1-1/1-1:1.0": _("Lower USB"),
+	},
+	"dm820":
+	{
+		"/devices/platform/ehci-brcm.0/": _("Back, lower USB"),
+		"/devices/platform/ehci-brcm.1/": _("Back, upper USB"),
+		"/devices/platform/ehci-brcm.2/": _("Internal USB"),
+		"/devices/platform/ehci-brcm.3/": _("Internal USB"),
+		"/devices/platform/ohci-brcm.0/": _("Back, lower USB"),
+		"/devices/platform/ohci-brcm.1/": _("Back, upper USB"),
+		"/devices/platform/ohci-brcm.2/": _("Internal USB"),
+		"/devices/platform/ohci-brcm.3/": _("Internal USB"),
+		"/devices/platform/sdhci-brcmstb.0/": _("eMMC"),
+		"/devices/platform/sdhci-brcmstb.1/": _("SD"),
+		"/devices/platform/strict-ahci.0/ata1/": _("SATA"),     # front
+		"/devices/platform/strict-ahci.0/ata2/": _("SATA"),     # back
 	},
 	"dm800se":
 	{
@@ -798,7 +813,7 @@ class HarddiskManager:
 				self.on_partition_list_change("add", p)
 			# see if this is a harddrive
 			l = len(device)
-			if l and not device[l-1].isdigit():
+			if l and (not device[l-1].isdigit() or device == 'mmcblk0'):
 				self.hdd.append(Harddisk(device, removable))
 				self.hdd.sort()
 				SystemInfo["Harddisk"] = True
@@ -861,7 +876,7 @@ class HarddiskManager:
 
 	def getUserfriendlyDeviceName(self, dev, phys):
 		dev, part = self.splitDeviceName(dev)
-		description = "External Storage %s" % dev
+		description = _("External Storage %s") % dev
 		try:
 			description = readFile("/sys" + phys + "/model")
 		except IOError, s:
@@ -872,7 +887,7 @@ class HarddiskManager:
 				description = pdescription
 		# not wholedisk and not partition 1
 		if part and part != 1:
-			description += " (Partition %d)" % part
+			description += _(" (Partition %d)") % part
 		return description
 
 	def addMountedPartition(self, device, desc):

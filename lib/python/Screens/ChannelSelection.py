@@ -44,6 +44,9 @@ from Screens.RdsDisplay import RassInteractive
 from ServiceReference import ServiceReference
 from Tools.BoundFunction import boundFunction
 from Tools import Notifications
+from Plugins.Plugin import PluginDescriptor
+from Components.PluginComponent import plugins
+
 from time import localtime, time
 from os import remove
 try:
@@ -87,6 +90,7 @@ class BouquetSelector(Screen):
 	def cancelClick(self):
 		self.close(False)
 
+
 class EpgBouquetSelector(BouquetSelector):
 	def __init__(self, session, bouquets, selectedFunc, enableWrapAround=False):
 		BouquetSelector.__init__(self, session, bouquets, selectedFunc, enableWrapAround=False)
@@ -95,6 +99,7 @@ class EpgBouquetSelector(BouquetSelector):
 
 	def okbuttonClick(self):
 		self.selectedFunc(self.getCurrent(),self.bouquets)
+
 
 class SilentBouquetSelector:
 	def __init__(self, bouquets, enableWrapAround=False, current=0):
@@ -119,7 +124,7 @@ OFF = 0
 EDIT_BOUQUET = 1
 EDIT_ALTERNATIVES = 2
 
-def append_when_current_valid(current, menu, args, level = 0, key = ""):
+def append_when_current_valid(current, menu, args, level=0, key=""):
 	if current and current.valid() and level <= config.usage.setup_level.index:
 		menu.append(ChoiceEntryComponent(key, args))
 
@@ -132,7 +137,7 @@ class ChannelContextMenu(Screen):
 		self.csel = csel
 		self.bsel = None
 
-		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "NumberActions"],
+		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "NumberActions", "MenuActions"],
 			{
 				"ok": self.okbuttonClick,
 				"cancel": self.cancelClick,

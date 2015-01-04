@@ -309,7 +309,7 @@ class MultiFileSelectList(FileList):
 		if preselectedFiles is None:
 			self.selectedFiles = []
 		else:
-				self.selectedFiles = preselectedFiles
+			self.selectedFiles = preselectedFiles
 		FileList.__init__(self, directory, showMountpoints = showMountpoints, matchingPattern = matchingPattern, showDirectories = showDirectories, showFiles = showFiles,  useServiceRef = useServiceRef, inhibitDirs = inhibitDirs, inhibitMounts = inhibitMounts, isTop = isTop, enableWrapAround = enableWrapAround, additionalExtensions = additionalExtensions)
 		self.changeDir(directory)
 		self.l.setItemHeight(25)
@@ -433,7 +433,8 @@ class MultiFileSelectList(FileList):
 				if (self.matchingPattern is None) or self.matchingPattern.search(path):
 					alreadySelected = False
 					for entry in self.selectedFiles:
-						if os.path.basename(entry) == x:
+						#if os.path.basename(entry) == x:
+						if entry == path:
 							alreadySelected = True
 					self.list.append(MultiFileSelectEntryComponent(name = name, absolute = x , isDir = False, selected = alreadySelected))
 

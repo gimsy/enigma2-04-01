@@ -18,12 +18,14 @@ plugin_path = ""
 
 # FIXME: harddiskmanager has a better overview about available mointpoints!
 BackupPath = {
+		"mtd" : "/media/backup",
 		"hdd" : "/media/hdd/backup",
 		"usb" : "/media/usb/backup",
 		"cf" : "/media/cf/backup"
 	}
 
 MountPoints = {
+		"mtd" : "/media/backup",
 		"hdd" : "/media/hdd",
 		"usb" : "/media/usb",
 		"cf" : "/media/cf"
@@ -105,7 +107,7 @@ class BackupSetup(Screen):
 		self["config"] = ConfigList(self.list)
 		self.backup = ConfigSubsection()
 		self.backup.type = ConfigSelection(choices = [("settings", _("enigma2 and network")), ("var", _("/var directory")), ("skin", _("/usr/share/enigma2 directory"))], default="settings")
-		self.backup.location = ConfigSelection(choices = [("hdd", _("Harddisk")), ("usb", _("USB Stick")), ("cf", _("CF Drive"))])
+		self.backup.location = ConfigSelection(choices = [("mtd", _("Backup")), ("hdd", _("Harddisk")), ("usb", _("USB Stick")), ("cf", _("CF Drive"))])
 		self.list.append(getConfigListEntry(_("Backup Mode"), self.backup.type))
 		self.list.append(getConfigListEntry(_("Backup Location"), self.backup.location))
 
@@ -199,7 +201,7 @@ class RestoreMenu(Screen):
 		if (self.exe == False) and (self.entry == True):
 			self.sel = self["filelist"].getCurrent()
 			self.val = self.path + self.sel
-			self.session.openWithCallback(self.startRestore, MessageBox, _("are you sure you want to restore\nfollowing backup:\n" + self.sel + "\nSTB-GUI will restart after the restore"))
+			self.session.openWithCallback(self.startRestore, MessageBox, _("are you sure you want to restore\nfollowing backup:\n" + self.sel + "\nEnigma2 will restart after the restore"))
 
 	def keyCancel(self):
 		self.close()

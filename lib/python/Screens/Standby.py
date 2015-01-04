@@ -27,6 +27,8 @@ def setLCDModeMinitTV(value):
 class Standby2(Screen):
 	def Power(self):
 		print "leave standby"
+		if (getBrandOEM() in ('fulan')):
+			open("/proc/stb/hdmi/output", "w").write("on")
 		#set input to encoder
 		self.avswitch.setInput("ENCODER")
 		#restart last played service
@@ -39,11 +41,6 @@ class Standby2(Screen):
 		PowerTimer.resetTimerWakeup()
 		RecordTimer.resetTimerWakeup()
 		#kill me
-		if os.path.exists("/usr/scripts/standby.sh") is True:
-			os.system("chmod 755 /usr/scripts/standby.sh")
-			os.system("/usr/scripts/standby.sh")
-		else:
-			print "/usr/scripts/standby.sh not found"
 		self.close(True)
 
 	def setMute(self):
@@ -108,6 +105,8 @@ class Standby2(Screen):
 			self.avswitch.setInput("SCART")
 		else:
 			self.avswitch.setInput("AUX")
+		if (getBrandOEM() in ('fulan')):
+			open("/proc/stb/hdmi/output", "w").write("off")
 		self.onFirstExecBegin.append(self.__onFirstExecBegin)
 		self.onClose.append(self.__onClose)
 

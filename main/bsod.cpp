@@ -18,7 +18,7 @@
 
 /************************************************/
 
-#define CRASH_EMAILADDR ""
+#define CRASH_EMAILADDR "Forum at www.droidsat.org"
 #define INFOFILE "/maintainer.info"
 
 #define RINGBUFFER_SIZE 16384
@@ -155,6 +155,7 @@ void bsodFatal(const char *component)
 	FILE *f;
 	const char* crashlog_name;
 	std::ostringstream os;
+	std::ostringstream os_text;
 	os << getConfigString("config.crash.debug_path", "/home/root/logs/");
 	os << "enigma2_crash_";
 	os << time(0);
@@ -193,7 +194,7 @@ void bsodFatal(const char *component)
 
 		XmlGenerator xml(f);
 
-		xml.open("Opendroid");
+		xml.open("OpenDroid");
 
 		xml.open("enigma2");
 		xml.string("crashdate", tm_str);
@@ -250,16 +251,16 @@ void bsodFatal(const char *component)
 			}
 			else if (access("/proc/stb/info/boxtype", F_OK) != -1) {
 				xml.cDataFromCmd("maxdigitalsoftware", "opkg list-installed 'xp*'");
-			}
+			}			
 			else if (access("/proc/stb/info/boxtype", F_OK) != -1) {
 				xml.cDataFromCmd("odinsoftware", "opkg list-installed 'odin*'");
-			}
+			}		
 			else if (access("/proc/stb/info/boxtype", F_OK) != -1) {
 				xml.cDataFromCmd("eboxsoftware", "opkg list-installed 'ebox*'");
-			}
+			}	
 			else if (access("/proc/stb/info/boxtype", F_OK) != -1) {
 				xml.cDataFromCmd("medialinksoftware", "opkg list-installed 'ixuss*'");
-			}
+			}				
 			xml.cDataFromCmd("gstreamersoftware", "opkg list-installed 'gst*'");
 			xml.close();
 		}
@@ -279,7 +280,7 @@ void bsodFatal(const char *component)
 	gPainter p(my_dc);
 	p.resetOffset();
 	p.resetClip(eRect(ePoint(0, 0), my_dc->size()));
-	p.setBackgroundColor(gRGB(0x010000));
+	p.setBackgroundColor(gRGB(0x27408B));
 	p.setForegroundColor(gRGB(0xFFFFFF));
 
 	ePtr<gFont> font = new gFont("Regular", 20);
@@ -290,12 +291,15 @@ void bsodFatal(const char *component)
 
 	os.str("");
 	os.clear();
-	os << "We are really sorry. Your receiver encountered "
-		"a software problem, and needs to be restarted. "
-		"Please ask for support in www.droidsat.org forum\n"
-		"The logfiles are created in /home/root/logs/.\n"
+	os_text.clear();
+
+	os_text << "We are really sorry. Your receiver encountered "
+		"a software problem, and needs to be restarted.\n"
+		"Please send the logfile " << crashlog_name << " to " << crash_emailaddr << ".\n"
 		"Your receiver restarts in 10 seconds!\n"
 		"Component: " << crash_component;
+	
+	os << getConfigString("config.crash.debug_text", os_text.str());
 
 	p.renderText(usable_area, os.str().c_str(), gPainter::RT_WRAP|gPainter::RT_HALIGN_LEFT);
 

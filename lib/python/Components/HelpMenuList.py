@@ -1,6 +1,6 @@
 from GUIComponent import GUIComponent
 
-from enigma import eListboxPythonMultiContent, eListbox, gFont
+from enigma import eListboxPythonMultiContent, eListbox, gFont, getDesktop
 from Tools.KeyBindings import queryKeyBinding, getKeyDescription
 #getKeyPositions
 
@@ -8,6 +8,7 @@ from Tools.KeyBindings import queryKeyBinding, getKeyDescription
 
 class HelpMenuList(GUIComponent):
 	def __init__(self, helplist, callback):
+		screenwidth = getDesktop(0).size().width()
 		GUIComponent.__init__(self)
 		self.onSelChanged = [ ]
 		self.l = eListboxPythonMultiContent()
@@ -17,6 +18,10 @@ class HelpMenuList(GUIComponent):
 		l = [ ]
 		for (actionmap, context, actions) in helplist:
 			for (action, help) in actions:
+				if hasattr(help, '__call__'):
+					help = help()
+				if not help:
+					continue
 				buttons = queryKeyBinding(context, action)
 
 				# do not display entries which are not accessible from keys

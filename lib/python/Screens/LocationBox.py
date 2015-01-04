@@ -278,7 +278,7 @@ class LocationBox(Screen, NumericalTextInput, HelpableScreen):
 				val = self.realBookmarks and self.realBookmarks.value
 				if val and name in val:
 					val.remove(name)
-					self.realBookmarks.setValue(val)
+					self.realBookmarks.value = val
 					self.realBookmarks.save()
 
 	def up(self):
@@ -324,7 +324,7 @@ class LocationBox(Screen, NumericalTextInput, HelpableScreen):
 					self.bookmarks.sort()
 
 				if self.bookmarks != self.realBookmarks.value:
-					self.realBookmarks.setValue(self.bookmarks)
+					self.realBookmarks.value = self.bookmarks
 					self.realBookmarks.save()
 			self.close(ret)
 
@@ -517,7 +517,7 @@ class TimeshiftLocationBox(LocationBox):
 
 	def selectConfirmed(self, ret):
 		if ret:
-			config.usage.timeshift_path.setValue(self.getPreferredFolder())
+			config.usage.timeshift_path.value = self.getPreferredFolder()
 			config.usage.timeshift_path.save()
 			LocationBox.selectConfirmed(self, ret)
 

@@ -1,5 +1,5 @@
-import os
 import re
+import os
 from socket import *
 from Components.Console import Console
 from Components.PluginComponent import plugins
@@ -414,9 +414,9 @@ class Network:
 
 	def checkNetworkState(self,statecallback):
 		self.NetworkState = 0
-		cmd1 = "ping -c 1 www.google.de"
-		cmd2 = "ping -c 1 www.google.com"
-		cmd3 = "ping -c 1 www.google.nl"
+		cmd1 = "ping -c 1 www.openpli.org"
+		cmd2 = "ping -c 1 www.google.nl"
+		cmd3 = "ping -c 1 www.google.com"
 		self.PingConsole = Console()
 		self.PingConsole.ePopen(cmd1, self.checkNetworkStateFinished,statecallback)
 		self.PingConsole.ePopen(cmd2, self.checkNetworkStateFinished,statecallback)
@@ -608,7 +608,10 @@ class Network:
 		if self.activateInterfaceConsole:
 			if len(self.activateInterfaceConsole.appContainers) == 0:
 				if callback is not None:
-					callback(True)
+					try:
+						callback(True)
+					except:
+						pass
 
 	def sysfsPath(self, iface):
 		return '/sys/class/net/' + iface

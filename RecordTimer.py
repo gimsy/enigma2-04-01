@@ -140,9 +140,9 @@ class RecordTimerEntry(timer.TimerEntry, object):
 			self.descramble = descramble
 			self.record_ecm = record_ecm
 
-		self.rename_repeat = rename_repeat
 		self.needChangePriorityFrontend = config.usage.recording_frontend_priority.value != "-2" and config.usage.recording_frontend_priority.value != config.usage.frontend_priority.value
 		self.change_frontend = False
+		self.rename_repeat = rename_repeat
 		self.isAutoTimer = isAutoTimer
 		self.wasInStandby = False
 
@@ -185,19 +185,27 @@ class RecordTimerEntry(timer.TimerEntry, object):
 			self.log(0, "Found enough free space to record")
 			return True
 
-	def calculateFilename(self, name=None):
+	def calculateFilename(self):
 		service_name = self.service_ref.getServiceName()
 		begin_date = strftime("%Y%m%d %H%M", localtime(self.begin))
 
-		name = name or self.name
+#		print "begin_date: ", begin_date
+#		print "service_name: ", service_name
+#		print "name:", self.name
+#		print "description: ", self.description
+#
 		filename = begin_date + " - " + service_name
-		if name:
-			if config.recording.filename_composition.value == "short":
-				filename = strftime("%Y%m%d", localtime(self.begin)) + " - " + name
+		if self.name:
+			if config.recording.filename_composition.value == "veryveryshort":
+				filename = self.name
+			elif config.recording.filename_composition.value == "veryshort":
+				filename = self.name + " - " + begin_date
+			elif config.recording.filename_composition.value == "short":
+				filename = strftime("%Y%m%d", localtime(self.begin)) + " - " + self.name
 			elif config.recording.filename_composition.value == "long":
-				filename += " - " + name + " - " + self.description
+				filename += " - " + self.name + " - " + self.description
 			else:
-				filename += " - " + name # standard
+				filename += " - " + self.name # standard
 
 		if config.recording.ascii_filenames.value:
 			filename = ASCIItranslit.legacyEncode(filename)
@@ -229,8 +237,6 @@ class RecordTimerEntry(timer.TimerEntry, object):
 				self.setRecordingPreferredTuner(setdefault=True)
 				return False
 
-			name = self.name
-			description = self.description
 			if self.repeated:
 				epgcache = eEPGCache.getInstance()
 				queryTime=self.begin+(self.end-self.begin)/2
@@ -257,7 +263,7 @@ class RecordTimerEntry(timer.TimerEntry, object):
 				if event_id is None:
 					event_id = -1
 
-			prep_res=self.record_service.prepare(self.Filename + ".ts", self.begin, self.end, event_id, name.replace("\n", ""), description.replace("\n", ""), ' '.join(self.tags), bool(self.descramble), bool(self.record_ecm))
+			prep_res=self.record_service.prepare(self.Filename + ".ts", self.begin, self.end, event_id, self.name.replace("\n", ""), self.description.replace("\n", ""), ' '.join(self.tags), self.descramble, self.record_ecm)
 			if prep_res:
 				if prep_res == -255:
 					self.log(4, "failed to write meta information")

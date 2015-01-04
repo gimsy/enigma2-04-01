@@ -59,10 +59,21 @@ class ClockToText(Converter, object):
 		if not time or time > 169735005176:
 			return ""
 
+		# handle durations
 		if self.type == self.IN_MINUTES:
-			return "%d min" % (time / 60)
+			return ngettext("%d Min", "%d Mins", (time / 60)) % (time / 60)
 		elif self.type == self.AS_LENGTH:
+			if time < 0:
+				return ""
 			return "%d:%02d" % (time / 60, time % 60)
+		elif self.type == self.AS_LENGTHHOURS:
+			if time < 0:
+				return ""
+			return "%d:%02d" % (time / 3600, time / 60 % 60)
+		elif self.type == self.AS_LENGTHSECONDS:
+			if time < 0:
+				return ""
+			return "%d:%02d:%02d" % (time / 3600, time / 60 % 60, time % 60)
 		elif self.type == self.TIMESTAMP:
 			return str(time)
 		
@@ -74,10 +85,10 @@ class ClockToText(Converter, object):
 
 		if self.type == self.WITH_SECONDS:
 			# TRANSLATORS: full time representation hour:minute:seconds 
-			return _("%2d:%02d:%02d") % (t.tm_hour, t.tm_min, t.tm_sec)
+			return _("%02d:%02d:%02d") % (t.tm_hour, t.tm_min, t.tm_sec)
 		elif self.type == self.DEFAULT:
 			# TRANSLATORS: short time representation hour:minute
-			return _("%2d:%02d") % (t.tm_hour, t.tm_min)
+			return _("%02d:%02d") % (t.tm_hour, t.tm_min)
 		elif self.type == self.DATE:
 			# TRANSLATORS: full date representation dayname daynum monthname year in strftime() format! See 'man strftime'
 			d = _("%A %e %B %Y")

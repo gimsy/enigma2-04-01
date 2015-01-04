@@ -122,6 +122,7 @@ class EPGList(HTMLComponent, GUIComponent):
 		self.nowServPix = None
 		self.recEvPix = None
 		self.recSelEvPix = None
+		self.recordingEvPix= None
 		self.zapEvPix = None
 		self.zapSelEvPix = None
 
