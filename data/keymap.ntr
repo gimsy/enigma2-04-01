@@ -1,5 +1,5 @@
 <keymap>
-	<!-- "OPD Keymap 26.01.2014" -->
+	<!-- "OPD Keymap 05.01.2014" -->
 	<map context="ListboxActions">
 		<device name="keyboard">
 			<key id="a" mapto="up" flags="mr" />
