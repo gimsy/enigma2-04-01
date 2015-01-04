@@ -6,11 +6,9 @@ from GlobalActions import globalActionMap
 from config import config, ConfigSubsection, ConfigInteger
 
 profile("VolumeControl")
-#TODO .. move this to a own .py file
 class VolumeControl:
 	instance = None
-	"""Volume control, handles volUp, volDown, volMute actions and display
-	a corresponding dialog"""
+	"""Volume control, handles volUp, volDown, volMute actions and display a corresponding dialog"""
 	def __init__(self, session):
 		global globalActionMap
 		globalActionMap.actions["volumeUp"]=self.volUp
@@ -21,10 +19,12 @@ class VolumeControl:
 		VolumeControl.instance = self
 
 		config.audio = ConfigSubsection()
-		config.audio.volume = ConfigInteger(default = 100, limits = (0, 100))
+		config.audio.volume = ConfigInteger(default = 50, limits = (0, 100))
 
 		self.volumeDialog = session.instantiateDialog(Volume)
+		self.volumeDialog.setSubScreen()
 		self.muteDialog = session.instantiateDialog(Mute)
+		self.muteDialog.setSubScreen()
 
 		self.hideVolTimer = eTimer()
 		self.hideVolTimer.callback.append(self.volHide)
@@ -36,23 +36,41 @@ class VolumeControl:
 
 	def volSave(self):
 		if self.volctrl.isMuted():
-			config.audio.volume.value = 0
+			config.audio.volume.setValue(0)
 		else:
-			config.audio.volume.value = self.volctrl.getVolume()
+			config.audio.volume.setValue(self.volctrl.getVolume())
 		config.audio.volume.save()
 
 	def volUp(self):
-		self.setVolume(+1)
+		vol = self.volctrl.getVolume()
+		if vol < 10:
+			vol += 1
+		elif vol < 15:
+			vol += 2
+		elif vol < 20:
+			vol += 3
+		elif vol < 35:
+			vol += 4
+		else:
+			vol += 5
+		self.setVolume(vol)
 
 	def volDown(self):
-		self.setVolume(-1)
-
-	def setVolume(self, direction):
-		oldvol = self.volctrl.getVolume()
-		if direction > 0:
-			self.volctrl.volumeUp()
+		vol = self.volctrl.getVolume()
+		if vol <= 10:
+			vol -= 1
+		elif vol <= 15:
+			vol -= 2
+		elif vol <= 20:
+			vol -= 3
+		elif vol <= 35:
+			vol -= 4
 		else:
-			self.volctrl.volumeDown()
+			vol -= 5
+		self.setVolume(vol)
+
+	def setVolume(self, newvol):
+		self.volctrl.setVolume(newvol, newvol)
 		is_muted = self.volctrl.isMuted()
 		vol = self.volctrl.getVolume()
 		self.volumeDialog.show()
