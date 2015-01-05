@@ -1,5 +1,7 @@
 from Screens.Screen import Screen
+
 from Components.ActionMap import ActionMap
+from Components.Sources.StaticText import StaticText
 from Components.ScrollLabel import ScrollLabel
 
 class TextBox(Screen):

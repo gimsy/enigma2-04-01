@@ -140,7 +140,7 @@ void eDVBScan::stateChange(iDVBChannel *ch)
 		m_channel_state = state;
 	} else if (state == iDVBChannel::state_failed)
 	{
-		if (m_ch_current && m_channel)
+		if (m_ch_current)
 		{
 			int type;
 			m_ch_current->getSystem(type);
@@ -152,20 +152,10 @@ void eDVBScan::stateChange(iDVBChannel *ch)
 				if (parm.system == eDVBFrontendParametersTerrestrial::System_DVB_T_T2)
 				{
 					/* we have to scan T2 as well as T */
-					ePtr<iDVBFrontend> fe;
-					eDVBFrontendParameters eparm;
 					parm.system = eDVBFrontendParametersTerrestrial::System_DVB_T2;
-					eparm.setDVBT(parm);
-					m_channel->getFrontend(fe);
-					if (fe)
-					{
-						ePtr<iDVBFrontendParameters> feparm = new eDVBFrontendParameters(eparm);
-						/* but only if the frontend supports T2 */
-						if (fe->isCompatibleWith(feparm))
-						{
-							addChannelToScan(feparm);
-						}
-					}
+					ePtr<eDVBFrontendParameters> feparm = new eDVBFrontendParameters;
+					feparm->setDVBT(parm);
+					addChannelToScan(feparm);
 				}
 			}
 		}

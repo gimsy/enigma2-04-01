@@ -116,37 +116,37 @@ class LCD:
 				f = open("/proc/stb/lcd/symbol_hdd", "w")
 				f.write("0")
 				f.close()
-			if fileExists("/proc/stb/lcd/symbol_hddprogress"):
+			if fileExists("/proc/stb/lcd/symbol_hddprogress"):	
 				f = open("/proc/stb/lcd/symbol_hddprogress", "w")
 				f.write("0")
 				f.close()
-			if fileExists("/proc/stb/lcd/symbol_network"):
+			if fileExists("/proc/stb/lcd/symbol_network"):	
 				f = open("/proc/stb/lcd/symbol_network", "w")
 				f.write("0")
 				f.close()
-			if fileExists("/proc/stb/lcd/symbol_signal"):
+			if fileExists("/proc/stb/lcd/symbol_signal"):	
 				f = open("/proc/stb/lcd/symbol_signal", "w")
 				f.write("0")
 				f.close()
-			if fileExists("/proc/stb/lcd/symbol_timeshift"):
+			if fileExists("/proc/stb/lcd/symbol_timeshift"):		
 				f = open("/proc/stb/lcd/symbol_timeshift", "w")
 				f.write("0")
 				f.close()
-			if fileExists("/proc/stb/lcd/symbol_tv"):
+			if fileExists("/proc/stb/lcd/symbol_tv"):	
 				f = open("/proc/stb/lcd/symbol_tv", "w")
 				f.write("0")
 				f.close()
-			if fileExists("/proc/stb/lcd/symbol_usb"):
+			if fileExists("/proc/stb/lcd/symbol_usb"):	
 				f = open("/proc/stb/lcd/symbol_usb", "w")
 				f.write("0")
 				f.close()
 				
 	def setPower(self, value):
-		if fileExists("/proc/stb/power/vfd"):
+		if fileExists("/proc/stb/lcd/vfd"):
 			print 'setLCDPower',value
-			f = open("/proc/stb/power/vfd", "w")
+			f = open("/proc/stb/lcd/vfd", "w")
 			f.write(value)
-			f.close()
+			f.close()		
 
 	def setShowoutputresolution(self, value):
 		if fileExists("/proc/stb/lcd/show_outputresolution"):
@@ -204,7 +204,15 @@ def InitLcd():
 		f.close()
 	else:
 		can_lcdmodechecking = False
-	SystemInfo["LCDMiniTV"] = can_lcdmodechecking
+	SystemInfo["LCDMiniTV"] = can_lcdmodechecking	
+
+	if SystemInfo["StandbyLED"]:
+		def standbyLEDChanged(configElement):
+			file = open("/proc/stb/power/standbyled", "w")
+			file.write(configElement.value and "yes" or "no")
+			file.close()
+		config.usage.standbyLED = ConfigYesNo(default = True)
+		config.usage.standbyLED.addNotifier(standbyLEDChanged)
 	
 	if detected:
 		if can_lcdmodechecking:
@@ -232,14 +240,14 @@ def InitLcd():
 					default = "0")
 			if config.misc.boxtype.value == 'gbquad' or config.misc.boxtype.value == 'gbquadplus':
 				config.lcd.modepip.addNotifier(setLCDModePiP)
-			else:
+			else:				
 				config.lcd.modepip = ConfigNothing()
 
 			config.lcd.modeminitv = ConfigSelection(choices={
 					"0": _("normal"),
 					"1": _("MiniTV"),
 					"2": _("OSD"),
-					"3": _("MiniTV with OSD")},
+					"3": _("MiniTV with OSD")},					
 					default = "0")
 			config.lcd.fpsminitv = ConfigSlider(default=30, limits=(0, 30))
 			config.lcd.modeminitv.addNotifier(setLCDModeMinitTV)
@@ -276,10 +284,10 @@ def InitLcd():
 			ilcd.setMode(configElement.value);
 			
 		def setLCDpower(configElement):
-			ilcd.setPower(configElement.value);
+			ilcd.setPower(configElement.value);	
 			
 		def setLCDshowoutputresolution(configElement):
-			ilcd.setShowoutputresolution(configElement.value);
+			ilcd.setShowoutputresolution(configElement.value);	
 
 		def setLCDrepeat(configElement):
 			ilcd.setRepeat(configElement.value);
@@ -305,15 +313,6 @@ def InitLcd():
 		def setLEDblinkingtime(configElement):
 			ilcd.setLEDBlinkingTime(configElement.value);
 
-		def setPowerLEDstanbystate(configElement):
-			if fileExists("/proc/stb/power/standbyled"):
-				f = open("/proc/stb/power/standbyled", "w")
-				f.write(configElement.value)
-				f.close()
-
-		config.usage.lcd_standbypowerled = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
-		config.usage.lcd_standbypowerled.addNotifier(setPowerLEDstanbystate)
-
 		standby_default = 0
 
 		ilcd = LCD()
@@ -330,7 +329,7 @@ def InitLcd():
 			config.lcd.bright = ConfigSlider(default=4, limits=(0, 4))
 		else:
 			config.lcd.standby = ConfigSlider(default=standby_default, limits=(0, 10))
-			config.lcd.bright = ConfigSlider(default=5, limits=(0, 10))
+			config.lcd.bright = ConfigSlider(default=5, limits=(0, 10))		
 		config.lcd.standby.addNotifier(setLCDbright);
 		config.lcd.standby.apply = lambda : setLCDbright(config.lcd.standby)
 		config.lcd.bright.addNotifier(setLCDbright);
@@ -349,8 +348,8 @@ def InitLcd():
 			config.lcd.repeat = ConfigSelection([("0", _("None")), ("1", _("1X")), ("2", _("2X")), ("3", _("3X")), ("4", _("4X")), ("500", _("Continues"))], "3")
 			config.lcd.repeat.addNotifier(setLCDrepeat);
 			config.lcd.hdd = ConfigNothing()
-			config.lcd.mode = ConfigNothing()
-		elif fileExists("/proc/stb/lcd/scroll_delay") and getBoxType() not in ('ixussone', 'ixusszero'):
+			config.lcd.mode = ConfigNothing()			
+		elif fileExists("/proc/stb/lcd/scroll_delay") and not getBoxType() in ('ixussone', 'ixusszero'):
 			config.lcd.hdd = ConfigSelection([("0", _("No")), ("1", _("Yes"))], "1")
 			config.lcd.scrollspeed = ConfigSlider(default = 150, increment = 10, limits = (0, 500))
 			config.lcd.scrollspeed.addNotifier(setLCDscrollspeed);
@@ -374,7 +373,7 @@ def InitLcd():
 			config.lcd.showoutputresolution = ConfigSelection([("0", _("No")), ("1", _("Yes"))], "1")
 			config.lcd.showoutputresolution.addNotifier(setLCDshowoutputresolution);
 		else:
-			config.lcd.showoutputresolution = ConfigNothing()
+			config.lcd.showoutputresolution = ConfigNothing()			
 
 		if getBoxType() == 'vuultimo':
 			config.lcd.ledblinkingtime = ConfigSlider(default = 5, increment = 1, limits = (0,15))

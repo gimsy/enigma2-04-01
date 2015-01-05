@@ -40,7 +40,7 @@ class TitleProperties(Screen,ConfigListScreen):
 
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("OK"))
-		self["key_yellow"] = StaticText(_("Edit title"))
+		self["key_yellow"] = StaticText(_("Edit Title"))
 		self["key_blue"] = StaticText()
 		self["serviceinfo"] = StaticText()
 
@@ -64,7 +64,7 @@ class TitleProperties(Screen,ConfigListScreen):
 		    "cancel": self.cancel,
 		    "ok": self.ok,
 		}, -2)
-
+		
 		self.onShown.append(self.update)
 		self.onLayoutFinish.append(self.layoutFinished)
 

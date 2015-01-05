@@ -1,4 +1,5 @@
 
+import sys
 import time
 
 import enigma
@@ -69,6 +70,7 @@ def test_timer(repeat = 0, timer_start = 3600, timer_length = 1000, sim_length =
 	if t_initial[3:6] != t_repeated[3:6]:
 		raise tests.TestError("repeated timer time of day does not match")
 
+import FakeNotifications
 #sys.modules["Tools.Notifications"] = FakeNotifications
 #sys.modules["Tools.NumericalTextInput.NumericalTextInput"] = FakeNotifications
 

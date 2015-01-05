@@ -244,6 +244,7 @@ class CableTransponderSearchSupport:
 
 		bin_name = None
 		if tunername == "CXD1981":
+			bin_name = "CXD1981"
 			cmd = "cxd1978 --init --scan --verbose --wakeup --inv 2 --bus %d" % bus
 		elif tunername.startswith("Sundtek"):
 			bin_name = "mediaclient"
@@ -726,7 +727,7 @@ class ScanSetup(ConfigListScreen, Screen, CableTransponderSearchSupport):
 			(6000000, "6MHz"),
 			(7000000, "7MHz"),
 			(8000000, "8MHz"),
-			(10000000, "10MHz")
+			(10000000,"10MHz")
 			])
 		#, (eDVBFrontendParametersTerrestrial.Bandwidth_Auto, _("Auto"))))
 		self.scan_ter.fechigh = ConfigSelection(default = defaultTer["fechigh"], choices = [
@@ -1140,7 +1141,7 @@ class ScanSetup(ConfigListScreen, Screen, CableTransponderSearchSupport):
 			else:
 				self.session.open(MessageBox, _("Nothing to scan!\nPlease setup your tuner settings before you start a service scan."), MessageBox.TYPE_ERROR)
 
-	def startScanCallback(self, answer):
+	def startScanCallback(self, answer=True):
 		if answer:
 			self.doCloseRecursive()
 

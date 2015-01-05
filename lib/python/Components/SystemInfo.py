@@ -1,11 +1,8 @@
 from os import path
-
 from enigma import eDVBResourceManager, Misc_Options
-
-from Tools.Directories import fileExists, fileCheck
+from Tools.Directories import fileExists, fileCheck, resolveFilename, SCOPE_SKIN
 from Tools.HardwareInfo import HardwareInfo
-
-from boxbranding import getBoxType, getMachineBuild
+from boxbranding import getBoxType, getMachineBuild, getBrandOEM
 
 SystemInfo = { }
 
@@ -32,17 +29,23 @@ def countFrontpanelLEDs():
 	return leds
 
 SystemInfo["12V_Output"] = Misc_Options.getInstance().detected_12V_output()
-SystemInfo["ZapMode"] = fileCheck("/proc/stb/video/zapmode") or fileCheck("/proc/stb/video/zapping_mode")
+SystemInfo["ZapMode"] = fileExists("/proc/stb/video/zapmode") or fileExists("/proc/stb/video/zapping_mode")
 SystemInfo["NumFrontpanelLEDs"] = countFrontpanelLEDs()
 SystemInfo["FrontpanelDisplay"] = fileExists("/dev/dbox/oled0") or fileExists("/dev/dbox/lcd0")
-SystemInfo["OledDisplay"] = fileExists("/dev/dbox/oled0")
-SystemInfo["LcdDisplay"] = fileExists("/dev/dbox/lcd0")
+SystemInfo["FrontpanelDisplayGrayscale"] = fileExists("/dev/dbox/oled0")
+SystemInfo["OledDisplay"] = fileExists(resolveFilename(SCOPE_SKIN, 'display/skin_display_picon.xml')) or fileExists(resolveFilename(SCOPE_SKIN, 'vfd_skin/skin_display_no_picon.xml'))
+SystemInfo["TextDisplay"] = fileExists(resolveFilename(SCOPE_SKIN, 'display/skin_text_clock.xml'))
 SystemInfo["DeepstandbySupport"] = HardwareInfo().has_deepstandby()
-SystemInfo["Fan"] = fileCheck("/proc/stb/fp/fan")
-SystemInfo["FanPWM"] = SystemInfo["Fan"] and fileCheck("/proc/stb/fp/fan_pwm")
-SystemInfo["StandbyPowerLed"] = fileExists("/proc/stb/power/standbyled")
-SystemInfo["LEDButtons"] = getBoxType() == 'vuultimo'
-SystemInfo["WakeOnLAN"] = fileCheck("/proc/stb/power/wol") or fileCheck("/proc/stb/fp/wol")
+SystemInfo["Fan"] = fileExists("/proc/stb/fp/fan")
+SystemInfo["FanPWM"] = SystemInfo["Fan"] and fileExists("/proc/stb/fp/fan_pwm")
+SystemInfo["StandbyLED"] = fileExists("/proc/stb/power/standbyled")
+SystemInfo["lxbuttons"] = getBrandOEM() == "ini"
+SystemInfo["3FunctionButtons"] = getBoxType() == "et8000" or getBoxType() == "et6x00" or getBoxType() == "et10000" or getBoxType().startswith('gb')
+SystemInfo["4FunctionButtons"] = getBoxType().startswith('gb')
+if getBoxType() in ('gbquad', 'gbquadplus','gb800ueplus', 'gb800seplus', 'gbipbox'):
+	SystemInfo["WakeOnLAN"] = False
+else:
+	SystemInfo["WakeOnLAN"] = fileCheck("/proc/stb/power/wol") or fileCheck("/proc/stb/fp/wol")
 SystemInfo["HDMICEC"] = (fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")) and fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/HdmiCEC/plugin.pyo")
 SystemInfo["SABSetup"] = fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/SABnzbd/plugin.pyo")
 SystemInfo["SeekStatePlay"] = False
@@ -53,5 +56,6 @@ SystemInfo["HasExternalPIP"] = getMachineBuild() not in ('et9x00', 'et6x00', 'et
 SystemInfo["hasPIPVisibleProc"] = fileCheck("/proc/stb/vmpeg/1/visible")
 SystemInfo["VideoDestinationConfigurable"] = fileExists("/proc/stb/vmpeg/0/dst_left")
 SystemInfo["GBWOL"] = fileExists("/usr/bin/gigablue_wol")
+SystemInfo["ETWOL"] = fileCheck("/proc/stb/power/wol") or fileCheck("/proc/stb/fp/wol")
 SystemInfo["LCDSKINSetup"] = path.exists("/usr/share/enigma2/display")
 SystemInfo["isGBIPBOX"] = fileExists("/usr/lib/enigma2/python/gbipbox.so")

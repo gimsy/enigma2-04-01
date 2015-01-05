@@ -21,12 +21,10 @@ class VolumeControl:
 		VolumeControl.instance = self
 
 		config.audio = ConfigSubsection()
-		config.audio.volume = ConfigInteger(default = 50, limits = (0, 100))
+		config.audio.volume = ConfigInteger(default = 100, limits = (0, 100))
 
 		self.volumeDialog = session.instantiateDialog(Volume)
-		self.volumeDialog.setSubScreen()
 		self.muteDialog = session.instantiateDialog(Mute)
-		self.muteDialog.setSubScreen()
 
 		self.hideVolTimer = eTimer()
 		self.hideVolTimer.callback.append(self.volHide)
@@ -38,41 +36,23 @@ class VolumeControl:
 
 	def volSave(self):
 		if self.volctrl.isMuted():
-			config.audio.volume.setValue(0)
+			config.audio.volume.value = 0
 		else:
-			config.audio.volume.setValue(self.volctrl.getVolume())
+			config.audio.volume.value = self.volctrl.getVolume()
 		config.audio.volume.save()
 
 	def volUp(self):
-		vol = self.volctrl.getVolume()
-		if vol < 10:
-			vol += 1
-		elif vol < 15:
-			vol += 2
-		elif vol < 20:
-			vol += 3
-		elif vol < 35:
-			vol += 4
-		else:
-			vol += 5
-		self.setVolume(vol)
+		self.setVolume(+1)
 
 	def volDown(self):
-		vol = self.volctrl.getVolume()
-		if vol <= 10:
-			vol -= 1
-		elif vol <= 15:
-			vol -= 2
-		elif vol <= 20:
-			vol -= 3
-		elif vol <= 35:
-			vol -= 4
-		else:
-			vol -= 5
-		self.setVolume(vol)
+		self.setVolume(-1)
 
-	def setVolume(self, newvol):
-		self.volctrl.setVolume(newvol, newvol)
+	def setVolume(self, direction):
+		oldvol = self.volctrl.getVolume()
+		if direction > 0:
+			self.volctrl.volumeUp()
+		else:
+			self.volctrl.volumeDown()
 		is_muted = self.volctrl.isMuted()
 		vol = self.volctrl.getVolume()
 		self.volumeDialog.show()

@@ -7,6 +7,7 @@ from Components.ActionMap import ActionMap
 from Components.PluginComponent import plugins
 from Components.PluginList import *
 from Components.Label import Label
+from Components.Language import language
 from Components.Pixmap import Pixmap
 from Components.Button import Button
 from Components.Harddisk import harddiskmanager
@@ -221,8 +222,6 @@ class PluginDownloadBrowser(Screen):
 		self.check_bootlogo = False
 		self.install_settings_name = ''
 		self.remove_settings_name = ''
-		self.onChangedEntry = []
-		self["list"].onSelectionChanged.append(self.selectionChanged)
 
 		if self.type == self.DOWNLOAD:
 			self["text"] = Label(_("Downloading plugin information. Please wait..."))
@@ -248,25 +247,6 @@ class PluginDownloadBrowser(Screen):
 			self.ipkg_install = 'ipkg install --force-overwrite -force-defaults'
 			self.ipkg_remove =  self.ipkg + ' remove'
 			self.ipkg_toogle =  self.ipkg + ' flag hold'
-
-	def createSummary(self):
-		return PluginBrowserSummary
-
-	def selectionChanged(self):
-		item = self["list"].getCurrent()
-		try:
-			if isinstance(item[0], str): # category
-				name = item[0]
-				desc = ""
-			else:
-				p = item[0]
-				name = item[1][0:8][7]
-				desc = p.description
-		except:
-			name = ""
-			desc = ""
-		for cb in self.onChangedEntry:
-			cb(name, desc)
 
 	def createPluginFilter(self):
 		#Create Plugin Filter
@@ -595,7 +575,7 @@ class PluginDownloadBrowser(Screen):
 		for x in self.pluginlist:
 			split = x[3].split('-', 1)
 			if x[0][0:14] == 'kernel-module-':
-					split[0] = "kernel modules"
+				split[0] = "kernel modules"
 			elif x[0][0:15] == 'enigma2-locale-':
 				split[0] = "languages"
 
@@ -684,21 +664,21 @@ class PluginFilter(ConfigListScreen, Screen):
 		self.editListEntry = None
 		self.list = []
 		self.list.append(getConfigListEntry(_("opendroid"), config.pluginfilter.opendroid, _("This allows you to show opendroid modules in downloads")))
-		self.list.append(getConfigListEntry(_("Languages"), config.pluginfilter.po, _("If set to 'yes' it will show the 'PO' packages in browser.")))
-		self.list.append(getConfigListEntry(_("Sources"), config.pluginfilter.src, _("If set to 'yes' it will show the 'SRC' packages in browser.")))
+		self.list.append(getConfigListEntry(_("PO"), config.pluginfilter.po, _("If set to 'yes' it will show the 'PO' packages in browser.")))
+		self.list.append(getConfigListEntry(_("Src"), config.pluginfilter.src, _("If set to 'yes' it will show the 'SRC' packages in browser.")))
 		self.list.append(getConfigListEntry(_("Drivers"), config.pluginfilter.drivers, _("This allows you to show drivers modules in downloads")))
 		self.list.append(getConfigListEntry(_("Extensions"), config.pluginfilter.extensions, _("This allows you to show extensions modules in downloads")))
 		self.list.append(getConfigListEntry(_("Systemplugins"), config.pluginfilter.systemplugins, _("This allows you to show systemplugins modules in downloads")))
 		self.list.append(getConfigListEntry(_("Softcams"), config.pluginfilter.softcams, _("This allows you to show softcams modules in downloads")))
 		self.list.append(getConfigListEntry(_("Skins"), config.pluginfilter.skins, _("This allows you to show skins modules in downloads")))
-		self.list.append(getConfigListEntry(_("LCD Skins"), config.pluginfilter.skins, _("This allows you to show lcd skins in downloads")))
+		self.list.append(getConfigListEntry(_("display"), config.pluginfilter.skins, _("This allows you to show lcd skins in downloads")))
 		self.list.append(getConfigListEntry(_("Picons"), config.pluginfilter.picons, _("This allows you to show picons modules in downloads")))
 		self.list.append(getConfigListEntry(_("Settings"), config.pluginfilter.settings, _("This allows you to show settings modules in downloads")))
 		self.list.append(getConfigListEntry(_("Weblinks"), config.pluginfilter.weblinks, _("This allows you to show weblinks modules in downloads")))
 		self.list.append(getConfigListEntry(_("PLi"), config.pluginfilter.pli, _("This allows you to show pli modules in downloads")))
 		self.list.append(getConfigListEntry(_("ViX"), config.pluginfilter.vix, _("This allows you to show vix modules in downloads")))
-		self.list.append(getConfigListEntry(_("Security"), config.pluginfilter.security, _("This allows you to show security modules in downloads")))
-		self.list.append(getConfigListEntry(_("Kernel Modules"), config.pluginfilter.kernel, _("This allows you to show kernel modules in downloads")))
+		self.list.append(getConfigListEntry(_("security"), config.pluginfilter.security, _("This allows you to show security modules in downloads")))
+		self.list.append(getConfigListEntry(_("kernel modules"), config.pluginfilter.kernel, _("This allows you to show kernel modules in downloads")))
 		self.list.append(getConfigListEntry(_("Gigabluesupportnet"), config.pluginfilter.gigabluesupportnet, _("This allows you to show gigabluesupportnet modules in downloads")))
 		self.list.append(getConfigListEntry(_("User Feed URL"), config.pluginfilter.userfeed, _("Please enter your personal feed URL")))
 
@@ -754,5 +734,5 @@ class PluginFilter(ConfigListScreen, Screen):
 		if callback is not None and len(callback):
 			self["config"].getCurrent()[1].value = callback
 			self["config"].invalidate(self["config"].getCurrent())
-			
+
 language.addCallback(languageChanged)

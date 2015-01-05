@@ -82,16 +82,12 @@ class MMIDialog(Screen):
 			list.append( (entry[1], ConfigNothing(), entry[2]) )
 		if entry[0] == "PIN":
 			pinlength = entry[1]
-			pin = config.cipin.pin1.value
-			if len(str(config.cipin.pin1.value)) == 3:
-				pin = "0" + str(config.cipin.pin1.value)
-				pinlength = 4
 			if entry[3] == 1:
 				# masked pins:
-				x = ConfigPIN(int(pin), len = pinlength, censor = "*")
+				x = ConfigPIN(int(config.cipin.pin1.value), len = pinlength, censor = "*")
 			else:
 				# unmasked pins:
-				x = ConfigPIN(int(pin), len = pinlength)
+				x = ConfigPIN(int(config.cipin.pin1.value), len = pinlength)
 			x.addEndNotifier(self.pinEntered)
 			self["subtitle"].setText(entry[2])
 			list.append( getConfigListEntry("", x) )
@@ -121,21 +117,18 @@ class MMIDialog(Screen):
 			self.handler.answerMenu(self.slotid, 0)
 			self.showWait()
 		elif self.tag == "ENQ":
-			pin = config.cipin.pin1.value
-			if len(str(config.cipin.pin1.value)) == 3:
-				pin = "0" + str(config.cipin.pin1.value)
 			cur = self["entries"].getCurrent()
 			try:
 				answer = str(cur[1].value)
 			except:
-				answer = str(pin)
-
+				answer = str(config.cipin.pin1.value)
+				
 			length = len(answer)
 			
 			try:
 				pinlen = cur[1].getLength()
 			except:
-				pinlen = len(str(pin))
+				pinlen = len(str(config.cipin.pin1.value))
 			while length < pinlen:
 				answer = '0'+answer
 				length+=1

@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-from boxbranding import getMachineBuild, getMachineBrand, getMachineName
 from Tools.Profile import profile
 
 from Screen import Screen
 import Screens.InfoBar
 import Components.ParentalControl
 from Components.Button import Button
-from Components.ServiceList import ServiceList, refreshServiceList
+from Components.ServiceList import ServiceList
 from Components.ActionMap import NumberActionMap, ActionMap, HelpableActionMap
 from Components.MenuList import MenuList
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
@@ -44,9 +43,6 @@ from Screens.RdsDisplay import RassInteractive
 from ServiceReference import ServiceReference
 from Tools.BoundFunction import boundFunction
 from Tools import Notifications
-from Plugins.Plugin import PluginDescriptor
-from Components.PluginComponent import plugins
-
 from time import localtime, time
 from os import remove
 try:
@@ -137,7 +133,7 @@ class ChannelContextMenu(Screen):
 		self.csel = csel
 		self.bsel = None
 
-		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "NumberActions", "MenuActions"],
+		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "NumberActions"],
 			{
 				"ok": self.okbuttonClick,
 				"cancel": self.cancelClick,
@@ -166,10 +162,6 @@ class ChannelContextMenu(Screen):
 						append_when_current_valid(current, menu, (_("stop using as startup service"), self.unsetStartupService), level = 0)
 					else:
 						append_when_current_valid(current, menu, (_("set as startup service"), self.setStartupService), level = 0)
-					if config.servicelist.startupservice_standby.value == self.csel.getCurrentSelection().toString():
-						append_when_current_valid(current, menu, (_("stop using as startup service from standby"), self.unsetStartupServiceStandby), level = 0)
-					else:
-						append_when_current_valid(current, menu, (_("set as startup service from standby"), self.setStartupServiceStandby), level = 0)
 					if config.ParentalControl.configured.value:
 						from Components.ParentalControl import parentalControl
 						if parentalControl.getProtectionLevel(csel.getCurrentSelection().toCompareString()) == -1:
@@ -188,7 +180,7 @@ class ChannelContextMenu(Screen):
 						if not inBouquet:
 							append_when_current_valid(current, menu, (_("add service to favourites"), self.addServiceToBouquetSelected), level = 0)
 
-					if SystemInfo["PIPAvailable"]:
+					if SystemInfo.get("NumVideoDecoders", 1) > 1:
 						# only allow the service to be played directly in pip / mainwindow when the service is not under parental control
 						if not config.ParentalControl.configured.value or parentalControl.getProtectionLevel(csel.getCurrentSelection().toCompareString()) == -1:
 							if not csel.dopipzap:
@@ -214,7 +206,6 @@ class ChannelContextMenu(Screen):
 				menu.append(ChoiceEntryComponent(text = (_("add bouquet"), self.showBouquetInputBox)))
 				append_when_current_valid(current, menu, (_("rename entry"), self.renameEntry), level = 0)
 				append_when_current_valid(current, menu, (_("remove entry"), self.removeBouquet), level = 0)
-
 
 		if inBouquet: # current list is editable?
 			if csel.bouquet_mark_edit == OFF:
@@ -294,18 +285,6 @@ class ChannelContextMenu(Screen):
 		configfile.save()
 		self.close()
 
-	def setStartupServiceStandby(self):
-		config.servicelist.startupservice_standby.value = self.csel.getCurrentSelection().toString()
-		config.servicelist.save()
-		configfile.save()
-		self.close()
-
-	def unsetStartupServiceStandby(self):
-		config.servicelist.startupservice_standby.value = ''
-		config.servicelist.save()
-		configfile.save()
-		self.close()
-
 	def showBouquetInputBox(self):
 		self.session.openWithCallback(self.bouquetInputCallback, InputBox, title=_("Please enter a name for the new bouquet"), text="bouquetname", maxSize=False, visible_width = 56, type=Input.TEXT)
 
@@ -331,28 +310,21 @@ class ChannelContextMenu(Screen):
 			self.session.openWithCallback(self.close, MessageBox, _("The pin code you entered is wrong."), MessageBox.TYPE_ERROR)
 
 	def showServiceInPiP(self):
-		service = self.session.nav.getCurrentService()
-		info = service and service.info()
-		xres = str(info.getInfo(iServiceInformation.sVideoWidth))
-		if int(xres) <= 720 or not getMachineBuild() == 'blackbox7405':
-			if not self.pipAvailable:
-				return
-			if self.session.pipshown:
-				del self.session.pip
-			self.session.pip = self.session.instantiateDialog(PictureInPicture)
-			self.session.pip.setSubScreen()
-			self.session.pip.show()
-			newservice = self.csel.servicelist.getCurrent()
-			if self.session.pip.playService(newservice):
-				self.session.pipshown = True
-				self.session.pip.servicePath = self.csel.getCurrentServicePath()
-				self.close(True)
-			else:
-				self.session.pipshown = False
-				del self.session.pip
-				self.session.openWithCallback(self.close, MessageBox, _("Could not open Picture in Picture"), MessageBox.TYPE_ERROR)
+		if not self.pipAvailable:
+			return
+		if self.session.pipshown:
+			del self.session.pip
+		self.session.pip = self.session.instantiateDialog(PictureInPicture)
+		self.session.pip.show()
+		newservice = self.csel.servicelist.getCurrent()
+		if self.session.pip.playService(newservice):
+			self.session.pipshown = True
+			self.session.pip.servicePath = self.csel.getCurrentServicePath()
+			self.close(True)
 		else:
-			self.session.open(MessageBox, _("Your %s %s does not support PiP HD") % (getMachineBrand(), getMachineName()), type = MessageBox.TYPE_INFO,timeout = 5 )
+			self.session.pipshown = False
+			del self.session.pip
+			self.session.openWithCallback(self.close, MessageBox, _("No free tuner, could not open Picture in Picture"), MessageBox.TYPE_ERROR)
 
 	def addServiceToBouquetSelected(self):
 		bouquets = self.csel.getBouquetList()
@@ -710,7 +682,7 @@ class ChannelSelectionEPG:
 				break
 		epg.setService(ServiceReference(self.getCurrentSelection()))
 
-	def zapToService(self, service, preview = False, zapback = False):
+	def zapToService(self, service, preview=False, zapback=False):
 		if self.startServiceRef is None:
 			self.startServiceRef = self.session.nav.getCurrentlyPlayingServiceOrGroup()
 		if service is not None:
@@ -721,7 +693,7 @@ class ChannelSelectionEPG:
 				self.servicelist.enterPath(self.epg_bouquet)
 			self.servicelist.setCurrent(service)
 		if not zapback or preview:
-			self.zap(enable_pipzap = True)
+			self.zap(enable_pipzap=True)
 		if (self.dopipzap or zapback) and not preview:
 			self.zapBack()
 		if not preview:
@@ -987,7 +959,7 @@ class ChannelSelectionEdit:
 				self.mutableList.addService(eServiceReference(x))
 			if changed:
 				if self.bouquet_mark_edit == EDIT_ALTERNATIVES and not new_marked and self.__marked:
-					self.mutableList.addService(eServiceReference(self.__marked[0]))	
+					self.mutableList.addService(eServiceReference(self.__marked[0]))
 				self.mutableList.flushChanges()
 		self.__marked = []
 		self.clearMarks()
@@ -1054,7 +1026,6 @@ class ChannelSelectionEdit:
 			self.setTitle(self.saved_title)
 			self.saved_title = None
 			self.servicelist.resetRoot()
-			self.servicelist.setCurrent(self.servicelist.getCurrent())
 		else:
 			self.mutableList = self.getMutableList()
 			self.movemode = True
@@ -1062,7 +1033,6 @@ class ChannelSelectionEdit:
 			self.saved_title = self.getTitle()
 			pos = self.saved_title.find(')')
 			self.setTitle(self.saved_title[:pos+1] + ' ' + _("[move mode]") + self.saved_title[pos+1:])
-			self.servicelist.setCurrent(self.servicelist.getCurrent())
 		self["Service"].editmode = True
 
 	def handleEditCancel(self):
@@ -1129,7 +1099,6 @@ class ChannelSelectionBase(Screen):
 
 		self.mode = MODE_TV
 		self.dopipzap = False
-		self.bouquet_mark_edit = OFF
 
 		self.pathChangeDisabled = False
 
@@ -1675,7 +1644,6 @@ config.radio.lastroot = ConfigText()
 config.servicelist = ConfigSubsection()
 config.servicelist.lastmode = ConfigText(default='tv')
 config.servicelist.startupservice = ConfigText()
-config.servicelist.startupservice_standby = ConfigText()
 config.servicelist.startuproot = ConfigText()
 config.servicelist.startupmode = ConfigText(default='tv')
 
@@ -1699,8 +1667,9 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
 				"keyRadio": self.toogleTvRadio,
 				"keyTV": self.toogleTvRadio,
 			})
-			
-		self.radioTV = 0	
+
+		self.radioTV = 0
+
 
 		self.__event_tracker = ServiceEventTracker(screen=self, eventmap=
 			{
@@ -1740,7 +1709,6 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
 		self.lastChannelRootTimer = eTimer()
 		self.lastChannelRootTimer.callback.append(self.__onCreate)
 		self.lastChannelRootTimer.start(100, True)
-		self.pipzaptimer = eTimer()
 
 	def asciiOn(self):
 		rcinput = eRCInput.getInstance()
@@ -1773,7 +1741,7 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
 		lastservice = eServiceReference(self.lastservice.value)
 		if lastservice.valid():
 			self.setCurrentSelection(lastservice)
-			
+
 	def toogleTvRadio(self): 
 		if self.radioTV == 1:
 			self.radioTV = 0
@@ -1853,7 +1821,7 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
 			title = title[:pos]
 		if self.dopipzap:
 			# Mark PiP as inactive and effectively deactivate pipzap
-			self.hidePipzapMessage()
+			self.session.pip.inactive()
 			self.dopipzap = False
 
 			# Disable PiP if not playing a service
@@ -1869,7 +1837,7 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
 			title += _(' (TV)')
 		else:
 			# Mark PiP as active and effectively active pipzap
-			self.showPipzapMessage()
+			self.session.pip.active()
 			self.dopipzap = True
 			self.__evServiceStart()
 			# Move to service playing in pip (will not work with subservices)
@@ -1878,19 +1846,6 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
 			title += _(' (PiP)')
 		self.setTitle(title)
 		self.buildTitleString()
-
-	def showPipzapMessage(self):
-		time = config.usage.infobar_timeout.index
-		if time:
-			self.pipzaptimer.callback.append(self.hidePipzapMessage)
-			self.pipzaptimer.startLongTimer(time)
-		self.session.pip.active()
-
-	def hidePipzapMessage(self):
-		if self.pipzaptimer.isActive():
-			self.pipzaptimer.callback.remove(self.hidePipzapMessage)
-			self.pipzaptimer.stop()
-		self.session.pip.inactive()
 
 	#called from infoBar and channelSelected
 	def zap(self, enable_pipzap=False, preview_zap=False, checkParentalControl=True, ref=None):
@@ -1904,7 +1859,6 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
 				if nref and (not checkParentalControl or Components.ParentalControl.parentalControl.isServicePlayable(nref, boundFunction(self.zap, enable_pipzap=True, checkParentalControl=False))):
 					self.session.pip.playService(nref)
 					self.__evServiceStart()
-					self.showPipzapMessage()
 				else:
 					self.setStartRoot(self.curRoot)
 					self.setCurrentSelection(ref)
@@ -2190,6 +2144,8 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
 			oldref = self.session.nav.currentlyPlayingServiceReference
 			if oldref and selected_ref == oldref or (oldref != current_ref and selected_ref == current_ref):
 				self.session.nav.currentlyPlayingServiceOrGroup = selected_ref
+				from Components.Renderer.ChannelNumber import doRenumber
+				doRenumber()
 		if self.dopipzap:
 			if tmp_mode == "tv":
 				self.setModeTv()
@@ -2200,6 +2156,7 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
 			if tmp_ref and pip_ref and tmp_ref.getChannelNum() != pip_ref.getChannelNum():
 				self.session.pip.currentService = tmp_ref
 			self.setCurrentSelection(tmp_ref)
+
 
 class PiPZapSelection(ChannelSelection):
 	def __init__(self, session):
@@ -2292,7 +2249,6 @@ class ChannelSelectionRadio(ChannelSelectionBase, ChannelSelectionEdit, ChannelS
 		self.onLayoutFinish.append(self.onCreate)
 
 		self.info = session.instantiateDialog(RadioInfoBar) # our simple infobar
-		self.info.setSubScreen()
 
 		self["actions"] = ActionMap(["OkCancelActions", "TvRadioActions"],
 			{
@@ -2424,7 +2380,7 @@ class ChannelSelectionRadio(ChannelSelectionBase, ChannelSelectionEdit, ChannelS
 		self.channelSelected()
 
 class SimpleChannelSelection(ChannelSelectionBase):
-	def __init__(self, session, title, currentBouquet=False):
+	def __init__(self, session, title):
 		ChannelSelectionBase.__init__(self, session)
 		self["actions"] = ActionMap(["OkCancelActions", "TvRadioActions"],
 			{
@@ -2435,7 +2391,7 @@ class SimpleChannelSelection(ChannelSelectionBase):
 			})
 		self.bouquet_mark_edit = OFF
 		self.title = title
-		self.currentBouquet = currentBouquet
+		self.bouquet_mark_edit = OFF
 		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):

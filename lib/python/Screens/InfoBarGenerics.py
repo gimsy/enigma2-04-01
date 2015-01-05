@@ -191,11 +191,11 @@ def ToggleVideo():
 	if mode == "letterbox":
 		f = open("/proc/stb/video/policy", "w")
 		f.write("panscan")
-		f.close()		
+		f.close()
 	elif mode == "panscan":
 		f = open("/proc/stb/video/policy", "w")
 		f.write("letterbox")
-		f.close()		
+		f.close()
 	else:
 		# if current policy is not panscan or letterbox, set to panscan
 		f = open("/proc/stb/video/policy", "w")

@@ -63,7 +63,7 @@ public:
 
 	RESULT getBouquet(const eServiceReference &ref, eBouquet* &bouquet);
 //////
-	void loadBouquet(const char *path);
+	int loadBouquet(const char *path, int startChannelNum = 1);
 	eServiceReference searchReference(int tsid, int onid, int sid);
 	void searchAllReferences(std::vector<eServiceReference> &result, int tsid, int onid, int sid);
 	eDVBDB();

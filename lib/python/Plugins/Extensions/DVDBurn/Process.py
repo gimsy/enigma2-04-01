@@ -1,8 +1,7 @@
 from Components.Task import Task, Job, DiskspacePrecondition, Condition, ToolExistsPrecondition
 from Components.Harddisk import harddiskmanager
 from Screens.MessageBox import MessageBox
-from Project import iso639language
-from Tools import Notifications
+import os
 
 class png2yuvTask(Task):
 	def __init__(self, job, inputfile, outputfile):
@@ -27,7 +26,7 @@ class mpeg2encTask(Task):
 		self.args += ["-f8", "-np", "-a2", "-o", outputfile]
 		self.inputFile = inputfile
 		self.weighting = 25
-		
+
 	def run(self, callback):
 		Task.run(self, callback)
 		self.container.readFromFile(self.inputFile)
@@ -199,8 +198,8 @@ class MplexTaskPostcondition(Condition):
 
 	def getErrorMessage(self, task):
 		return {
-			task.ERROR_UNDERRUN: ("Can't multiplex source video!"),
-			task.ERROR_UNKNOWN: ("An unknown error occured!")
+			task.ERROR_UNDERRUN: "Can't multiplex source video!",
+			task.ERROR_UNKNOWN: "An unknown error occurred!"
 		}[task.error]
 
 class MplexTask(Task):
@@ -287,7 +286,7 @@ class DVDAuthorFinalTask(Task):
 class WaitForResidentTasks(Task):
 	def __init__(self, job):
 		Task.__init__(self, job, "waiting for dvdauthor to finalize")
-		
+
 	def run(self, callback):
 		print "waiting for %d resident task(s) %s to finish..." % (len(self.job.resident_tasks),str(self.job.resident_tasks))
 		self.callback = callback
@@ -306,14 +305,14 @@ class BurnTaskPostcondition(Condition):
 	def getErrorMessage(self, task):
 		return {
 			task.ERROR_NOTWRITEABLE: _("Medium is not a writeable DVD!"),
-			task.ERROR_LOAD: _("Could not load Medium! No disc inserted?"),
+			task.ERROR_LOAD: _("Could not load medium! No disc inserted?"),
 			task.ERROR_SIZE: _("Content does not fit on DVD!"),
 			task.ERROR_WRITE_FAILED: _("Write failed!"),
 			task.ERROR_DVDROM: _("No (supported) DVDROM found!"),
 			task.ERROR_ISOFS: _("Medium is not empty!"),
 			task.ERROR_FILETOOLARGE: _("TS file is too large for ISO9660 level 1!"),
 			task.ERROR_ISOTOOLARGE: _("ISO file is too large for this filesystem!"),
-			task.ERROR_UNKNOWN: _("An unknown error occured!")
+			task.ERROR_UNKNOWN: _("An unknown error occurred!")
 		}[task.error]
 
 class BurnTask(Task):
@@ -326,14 +325,13 @@ class BurnTask(Task):
 		self.postconditions.append(BurnTaskPostcondition())
 		self.setTool(tool)
 		self.args += extra_args
-	
+
 	def prepare(self):
 		self.error = None
 
 	def processOutputLine(self, line):
 		line = line[:-1]
 		print "[GROWISOFS] %s" % line
-		progpos = line.find("%) @")
 		if line[8:14] == "done, ":
 			self.progress = float(line[:6])
 			print "progress:", self.progress
@@ -376,7 +374,7 @@ class BurnTask(Task):
 			self.error = self.ERROR_FILETOOLARGE
 		elif line.startswith("genisoimage: File too large."):
 			self.error = self.ERROR_ISOTOOLARGE
-	
+
 	def setTool(self, tool):
 		self.cmd = tool
 		self.args = [tool]
@@ -488,7 +486,7 @@ class ImagePrepareTask(Task):
 		self.weighting = 20
 		self.job = job
 		self.Menus = job.Menus
-		
+
 	def run(self, callback):
 		self.callback = callback
 		# we are doing it this weird way so that the TaskView Screen actually pops up before the spinner comes
@@ -659,7 +657,7 @@ class MenuImageTask(Task):
 		Task.processFinished(self, 0)
 		#except:
 			#Task.processFinished(self, 1)
-			
+
 	def getPosition(self, offset, left, top, right, bottom, size):
 		pos = [left, top]
 		if offset[0] != -1:
@@ -706,7 +704,7 @@ class Menus:
 			MplexTask(job, outputfile=menubgmpgfilename, inputfiles = [menubgm2vfilename, menuaudiofilename], weighting = 20)
 			menuoutputfilename = job.workspace+"/dvdmenu"+num+".mpg"
 			spumuxTask(job, spuxmlfilename, menubgmpgfilename, menuoutputfilename)
-		
+
 def CreateAuthoringXML_singleset(job):
 	nr_titles = len(job.project.titles)
 	mode = job.project.settings.authormode.value

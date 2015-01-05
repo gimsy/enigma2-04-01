@@ -189,7 +189,6 @@ class EPGSelection(Screen, HelpableScreen):
 						'input_date_time': (self.enterDateTime, _('Goto specific data/time')),
 						'info': (self.Info, _('Show detailed event info')),
 						'infolong': (self.InfoLong, _('Show single epg for current channel')),
-						'epg': (self.Info, _('Show detailed event info')),
 						'menu': (self.createSetup, _('Setup menu'))
 					}, -1)
 				self['epgactions'].csel = self
@@ -522,19 +521,13 @@ class EPGSelection(Screen, HelpableScreen):
 
 	def moveUp(self):
 		self['list'].moveTo(self['list'].instance.moveUp)
-		if self.type == EPG_TYPE_GRAPH or self.type == EPG_TYPE_INFOBARGRAPH:
-			self.moveTimeLines(True)
 
 	def moveDown(self):
 		self['list'].moveTo(self['list'].instance.moveDown)
-		if self.type == EPG_TYPE_GRAPH or self.type == EPG_TYPE_INFOBARGRAPH:
-			self.moveTimeLines(True)
 
 	def updEvent(self, dir, visible = True):
 		ret = self['list'].selEntry(dir, visible)
 		if ret:
-			self.moveTimeLines(True)
-		if self.type == EPG_TYPE_GRAPH or self.type == EPG_TYPE_INFOBARGRAPH:
 			self.moveTimeLines(True)
 
 	def nextPage(self):
@@ -952,9 +945,6 @@ class EPGSelection(Screen, HelpableScreen):
 		else:
 			autopoller = None
 			autotimer = None
-			
-	def timerAdd(self):
-		self.RecordTimerQuestion(True)
 
 	def timerAdd(self):
 		self.RecordTimerQuestion(True)

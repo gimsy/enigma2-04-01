@@ -156,12 +156,9 @@ class AVSwitch:
 			f.write(mode_50)
 			f.close()
 		if os.path.exists('/proc/stb/video/videomode_60hz') and getBoxType() not in ('gb800solo', 'gb800se', 'gb800ue'):
-			try:
-				f = open("/proc/stb/video/videomode_60hz", "w")
-				f.write(mode_60)
-				f.close()
-			except IOError:
-				print "setting videomode failed."
+			f = open("/proc/stb/video/videomode_60hz", "w")
+			f.write(mode_60)
+			f.close()
 		try:
 			mode_etc = modes.get(int(rate[:2]))
 			f = open("/proc/stb/video/videomode", "w")
@@ -176,11 +173,11 @@ class AVSwitch:
 			except IOError:
 				print "setting videomode failed."
 
-		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
-		self.setColorFormat(map[config.av.colorformat.value])
+				map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
+				self.setColorFormat(map[config.av.colorformat.value])
 
 		if about.getCPUString().startswith('STx'):
-			#call setResolution() with -1,-1 to read the new scrren dimensions without changing the framebuffer resolution
+			#call setResolution() with -1,-1 to read the new scrren dimesions without changing the framebuffer resolution
 			from enigma import gMainDC
 			gMainDC.getInstance().setResolution(-1, -1)
 
@@ -282,11 +279,10 @@ class AVSwitch:
 			wss = "auto(4:3_off)"
 		else:
 			wss = "auto"
-		if os.path.exists("/proc/stb/denc/0/wss"):
-			print "[VideoMode] setting wss: %s" % wss
-			f = open("/proc/stb/denc/0/wss", "w")
-			f.write(wss)
-			f.close()
+		print "[VideoMode] setting wss: %s" % wss
+		f = open("/proc/stb/denc/0/wss", "w")
+		f.write(wss)
+		f.close()
 
 	def setPolicy43(self, cfgelement):
 		print "[VideoMode] setting policy: %s" % cfgelement.value
@@ -398,6 +394,10 @@ def InitAVSwitch():
 			"16:10": _("16:10"),
 			"auto": _("Automatic")},
 			default = "16:9")
+	if getBoxType() == 'inihde':
+		config.av.colorformat = ConfigSelection(choices=colorformat_choices, default="yuv")
+	else:
+		config.av.colorformat = ConfigSelection(choices=colorformat_choices, default="rgb")
 	policy2_choices = {
 	# TRANSLATORS: (aspect ratio policy: black bars on top/bottom) in doubt, keep english term.
 	"letterbox": _("Letterbox"),
@@ -441,7 +441,9 @@ def InitAVSwitch():
 	config.av.policy_169.addNotifier(iAVSwitch.setPolicy169)
 
 	def setColorFormat(configElement):
-		if config.av.videoport and config.av.videoport.value in ("YPbPr", "Scart-YPbPr") or getMachineBuild() == 'inihdx':
+		if config.av.videoport and config.av.videoport.value == "Scart-YPbPr":
+			iAVSwitch.setColorFormat(3)
+		elif config.av.videoport and config.av.videoport.value == "YPbPr" or getMachineBuild() == 'inihdx':
 			iAVSwitch.setColorFormat(3)
 		else:
 			if getBoxType() == 'et6x00':
@@ -482,10 +484,16 @@ def InitAVSwitch():
 				f.close()
 			except:
 				pass
-		config.av.bypass_edid_checking = ConfigSelection(choices={
-				"00000000": _("off"),
-				"00000001": _("on")},
-				default = "00000001")
+		if about.getChipSetString() in ('7111'):
+			config.av.bypass_edid_checking = ConfigSelection(choices={
+					"00000000": _("off"),
+					"00000001": _("on")},
+					default = "00000001")
+		else:
+			config.av.bypass_edid_checking = ConfigSelection(choices={
+					"00000000": _("off"),
+					"00000001": _("on")},
+					default = "00000000")
 		config.av.bypass_edid_checking.addNotifier(setEDIDBypass)
 	else:
 		config.av.bypass_edid_checking = ConfigNothing()
@@ -534,27 +542,7 @@ def InitAVSwitch():
 		config.av.surround_3d.addNotifier(set3DSurround)
 	else:
 		config.av.surround_3d = ConfigNothing()
-
-	if os.path.exists("/proc/stb/audio/3d_surround_speaker_position_choices"):
-		f = open("/proc/stb/audio/3d_surround_speaker_position_choices", "r")
-		can_3dsurround_speaker = f.read().strip().split(" ")
-		f.close()
-	else:
-		can_3dsurround_speaker = False
-
-	SystemInfo["Can3DSpeaker"] = can_3dsurround_speaker
-
-	if can_3dsurround_speaker:
-		def set3DSurroundSpeaker(configElement):
-			f = open("/proc/stb/audio/3d_surround_speaker_position", "w")
-			f.write(configElement.value)
-			f.close()
-		choice_list = [("center", _("center")), ("wide", _("wide")), ("extrawide", _("extra wide"))]
-		config.av.surround_3d_speaker = ConfigSelection(choices = choice_list, default = "center")
-		config.av.surround_3d_speaker.addNotifier(set3DSurroundSpeaker)
-	else:
-		config.av.surround_3d_speaker = ConfigNothing()
-
+		
 	if os.path.exists("/proc/stb/audio/avl_choices"):
 		f = open("/proc/stb/audio/avl_choices", "r")
 		can_autovolume = f.read().strip().split(" ")
@@ -565,13 +553,13 @@ def InitAVSwitch():
 	SystemInfo["CanAutoVolume"] = can_autovolume
 
 	if can_autovolume:
-		def setAutoVolume(configElement):
+		def setAutoVulume(configElement):
 			f = open("/proc/stb/audio/avl", "w")
 			f.write(configElement.value)
 			f.close()
 		choice_list = [("none", _("off")), ("hdmi", _("HDMI")), ("spdif", _("SPDIF")), ("dac", _("DAC"))]
 		config.av.autovolume = ConfigSelection(choices = choice_list, default = "none")
-		config.av.autovolume.addNotifier(setAutoVolume)
+		config.av.autovolume.addNotifier(setAutoVulume)
 	else:
 		config.av.autovolume = ConfigNothing()
 

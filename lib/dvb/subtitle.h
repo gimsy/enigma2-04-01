@@ -1,11 +1,12 @@
 #ifndef __lib_dvb_subtitle_h
 #define __lib_dvb_subtitle_h
 
-#include <stdint.h>
 #include <lib/base/object.h>
 #include <lib/dvb/idvb.h>
 #include <lib/dvb/pesparse.h>
 #include <lib/gdi/gpixmap.h>
+
+typedef unsigned char __u8;
 
 struct subtitle_clut_entry
 {

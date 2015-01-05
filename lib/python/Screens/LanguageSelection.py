@@ -105,18 +105,13 @@ class LanguageSelection(Screen):
 		self.close()
 
 	def delLang(self):
-		curlang = config.osd.language.value
-		lang = curlang
-		languageList = language.getLanguageListSelection()
-		for t in languageList:
-			if curlang == t[0]:
-				lang = t[1]
-				break
-		self.session.openWithCallback(self.delLangCB, MessageBox, _("Do you want to delete all other languages?") + _(" Except %s") %(lang), default = False)
+		self.curlang = self["languages"].getCurrent()[0]
+		print self["languages"].getCurrent()
+		self.session.openWithCallback(self.delLangCB, MessageBox, _("Do you want to delete %s language?") %(self["languages"].getCurrent()[1]), default = False)
 
 	def delLangCB(self, anwser):
 		if anwser:		
-			language.delLanguage()
+			language.delLanguage(self.curlang)
 			language.activateLanguage(self.oldActiveLanguage)
 			self.updateList()
 			self.selectActiveLanguage()
@@ -136,7 +131,6 @@ class LanguageSelection(Screen):
 
 		self.setTitle(_cached("T2"))
 		self["summarylangname"].setText(_cached("T2"))
-		self["summarylangsel"].setText(self["languages"].getCurrent()[1])
 		self["key_red"].setText(_cached("T3"))
 		self["key_green"].setText(_cached("T4"))
 # 		index = self["languages"].getCurrent()[2]
@@ -154,7 +148,7 @@ class LanguageSelection(Screen):
 	def updateList(self):
 		languageList = language.getLanguageList()
 		if not languageList: # no language available => display only english
-			list = [ LanguageEntryComponent("en", "English (UK)", "en_GB") ]
+			list = [ LanguageEntryComponent("en", "English (US)", "en_US") ]
 		else:
 			list = [ LanguageEntryComponent(file = x[1][2].lower(), name = x[1][0], index = x[0]) for x in languageList]
 		self.list = list

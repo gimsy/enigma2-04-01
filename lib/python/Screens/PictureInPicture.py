@@ -14,6 +14,7 @@ PipPigModeEnabled = False
 PipPigModeTimer = eTimer()
 
 def timedStopPipPigMode():
+	PipPigModeTimer.stop()
 	from Screens.InfoBar import InfoBar
 	if InfoBar.instance and InfoBar.instance.session:
 		if SystemInfo["hasPIPVisibleProc"]:
@@ -38,7 +39,7 @@ def PipPigMode(value):
 					InfoBar.instance.session.pip.pipservice = False
 				PipPigModeEnabled = True
 		else:
-			PipPigModeTimer.start(100, True)
+			PipPigModeTimer.start(100)
 
 class PictureInPictureZapping(Screen):
 	skin = """<screen name="PictureInPictureZapping" flags="wfNoBorder" position="50,50" size="90,26" title="PiPZap" zPosition="-1">
@@ -133,7 +134,7 @@ class PictureInPicture(Screen):
 			self["video"].instance.resize(eSize(*(MAX_X, MAX_Y)))
 			self.setSizePosMainWindow()
 
-	def setSizePosMainWindow(self, x = 0, y = 0, w = 0, h = 0):
+	def setSizePosMainWindow(self, x = 0, y = 0, w = MAX_X, h = MAX_Y):
 		if SystemInfo["VideoDestinationConfigurable"]:
 			self["video"].instance.setFullScreenPosition(eRect(x, y, w, h))
 

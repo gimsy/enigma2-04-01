@@ -1,12 +1,11 @@
-import os
 from Screens.Screen import Screen
 from Components.ActionMap import ActionMap
 from Components.config import config
 from Components.AVSwitch import AVSwitch
 from Components.SystemInfo import SystemInfo
 from GlobalActions import globalActionMap
-from enigma import eDVBVolumecontrol, eTimer, eServiceReference
-from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM
+from enigma import eDVBVolumecontrol, eTimer
+from boxbranding import getMachineBrand, getMachineName, getBoxType
 from Tools import Notifications
 from time import localtime, time
 import Screens.InfoBar
@@ -85,10 +84,7 @@ class Standby2(Screen):
 		if self.session.current_dialog:
 			if self.session.current_dialog.ALLOW_SUSPEND == Screen.SUSPEND_STOPS:
 				if localtime(time()).tm_year > 1970 and self.session.nav.getCurrentlyPlayingServiceOrGroup():
-					if config.servicelist.startupservice_standby.value:
-						self.prev_running_service = eServiceReference(config.servicelist.startupservice_standby.value)
-					else:
-						self.prev_running_service = self.session.nav.getCurrentlyPlayingServiceOrGroup()
+					self.prev_running_service = self.session.nav.getCurrentlyPlayingServiceOrGroup()
 					self.session.nav.stopService()
 				else:
 					self.standbyTimeUnknownTimer.callback.append(self.stopService)
@@ -96,9 +92,10 @@ class Standby2(Screen):
 			elif self.session.current_dialog.ALLOW_SUSPEND == Screen.SUSPEND_PAUSES:
 				self.paused_service = self.session.current_dialog
 				self.paused_service.pauseService()
+
 		if self.session.pipshown:
-			from Screens.InfoBar import InfoBar
-			InfoBar.instance and hasattr(InfoBar.instance, "showPiP") and InfoBar.instance.showPiP()
+			del self.session.pip
+			self.session.pipshown = False
 
 		#set input to vcr scart
 		if SystemInfo["ScartSwitch"]:
@@ -131,10 +128,7 @@ class Standby2(Screen):
 		return StandbySummary
 
 	def stopService(self):
-		if config.servicelist.startupservice_standby.value:
-			self.prev_running_service = eServiceReference(config.servicelist.startupservice_standby.value)
-		else:
-			self.prev_running_service = self.session.nav.getCurrentlyPlayingServiceOrGroup()
+		self.prev_running_service = self.session.nav.getCurrentlyPlayingServiceOrGroup()
 		self.session.nav.stopService()
 
 class Standby(Standby2):

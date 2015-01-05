@@ -1,15 +1,9 @@
-from boxbranding import getImageVersion, getImageBuild, getImageDistro, getMachineBrand, getMachineName, getMachineBuild
-from os import rename, path, remove
-from gettext import dgettext
-import urllib
-
-from enigma import eTimer, eDVBDB
-
 import Components.Task
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.Standby import TryQuitMainloop
+from Components.About import about
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.config import config
@@ -18,7 +12,12 @@ from Components.Ipkg import IpkgComponent
 from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
 from Components.Slider import Slider
+from enigma import eTimer, eDVBDB
+from boxbranding import getImageVersion, getImageBuild, getMachineBrand, getMachineName, getBoxType
 
+from os import rename, path, remove
+from gettext import dgettext
+import urllib
 
 ocram = ''
 
@@ -94,12 +93,9 @@ class SoftwareUpdateChanges(Screen):
 				else:
 					releasever = releasever[0].replace(':',"")
 			if self.logtype == 'oe':
-				if int(getImageBuild()) == 1:
-					imagever = int(getImageBuild())-1
-				else:
-					imagever = int(getImageBuild())
+				imagever = getImageBuild()
 			else:
-				imagever = int(getImageBuild())+905
+				imagever = int(getImageBuild())+865
 			while int(releasever) > int(imagever):
 				if ocram:
 					viewrelease += releasenotes[int(ver)]+'\n'+ocram+'\n'
@@ -171,7 +167,7 @@ class UpdatePlugin(Screen):
 		if 'bad address' in result:
 			self.session.openWithCallback(self.close, MessageBox, _("Your %s %s is not connected to the internet, please check your network settings and try again.") % (getMachineBrand(), getMachineName()), type=MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
 		elif ('wget returned 1' or 'wget returned 255' or '404 Not Found') in result:
-			self.session.openWithCallback(self.close, MessageBox, _("Sorry feeds are down for maintenance, please try again later. If this issue persists please check openvix.co.uk or world-of-satellite.com."), type=MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
+			self.session.openWithCallback(self.close, MessageBox, _("Sorry feeds are down for maintenance, please try again later."), type=MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
 		elif 'Collected errors' in result:
 			self.session.openWithCallback(self.close, MessageBox, _("A background update check is in progress, please wait a few minutes and try again."), type=MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
 		else:

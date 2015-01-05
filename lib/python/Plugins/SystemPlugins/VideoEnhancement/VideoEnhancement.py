@@ -1,4 +1,3 @@
-from boxbranding import getBoxType
 from os import path as os_path
 
 from Components.config import config, ConfigSubsection, ConfigSlider, ConfigSelection, ConfigBoolean, ConfigNothing, NoSave
@@ -185,10 +184,7 @@ class VideoEnhancement:
 				if not VideoEnhancement.firstRun:
 					self.setConfiguredValues()
 
-			if getBoxType() == 'gbquad' or getBoxType() == 'gbquadplus':
-				config.pep.sharpness = ConfigSlider(default=256, limits=(0,256))
-			else:
-				config.pep.sharpness = ConfigSlider(default=0, limits=(0,256))
+			config.pep.sharpness = ConfigSlider(default=0, limits=(0,256))
 			config.pep.sharpness.addNotifier(setSharpness)
 		else:
 			config.pep.sharpness = NoSave(ConfigNothing())
@@ -264,10 +260,7 @@ class VideoEnhancement:
 				if not VideoEnhancement.firstRun:
 					self.setConfiguredValues()
 
-			if getBoxType() == 'gbquad' or getBoxType() == 'gbquadplus':
-				config.pep.dynamic_contrast = ConfigSlider(default=3, limits=(0,256))
-			else:
-				config.pep.dynamic_contrast = ConfigSlider(default=0, limits=(0,256))
+			config.pep.dynamic_contrast = ConfigSlider(default=0, limits=(0,256))
 			config.pep.dynamic_contrast.addNotifier(setDynamic_contrast)
 		else:
 			config.pep.dynamic_contrast = NoSave(ConfigNothing())

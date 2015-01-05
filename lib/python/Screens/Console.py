@@ -2,7 +2,6 @@ from enigma import eConsoleAppContainer
 from Screens.Screen import Screen
 from Components.ActionMap import ActionMap
 from Components.ScrollLabel import ScrollLabel
-from Components.Sources.StaticText import StaticText
 
 class Console(Screen):
 	def __init__(self, session, title = "Console", cmdlist = None, finishedCallback = None, closeOnSuccess = False):
@@ -12,15 +11,16 @@ class Console(Screen):
 		self.closeOnSuccess = closeOnSuccess
 		self.errorOcurred = False
 
+		self.Shown = True
 		self["text"] = ScrollLabel("")
-		self["summary_description"] = StaticText("")
-		self["actions"] = ActionMap(["WizardActions", "DirectionActions"],
+		self["actions"] = ActionMap(["ColorActions", "WizardActions", "DirectionActions"],
 		{
 			"ok": self.cancel,
 			"back": self.cancel,
 			"up": self["text"].pageUp,
-			"down": self["text"].pageDown
-		}, -1)
+			"down": self["text"].pageDown,
+			"yellow": self.yellow,
+		}, -2)
 
 		self.cmdlist = cmdlist
 		self.newtitle = title
@@ -33,12 +33,20 @@ class Console(Screen):
 		self.container.dataAvail.append(self.dataAvail)
 		self.onLayoutFinish.append(self.startRun) # dont start before gui is finished
 
+	def yellow(self):
+		print 'Yellow Pressed'	
+		if self.Shown == True:
+			self.hide()
+			self.Shown = False
+		else:
+			self.show()
+			self.Shown = True
+
 	def updateTitle(self):
 		self.setTitle(self.newtitle)
 
 	def startRun(self):
 		self["text"].setText(_("Execution progress:") + "\n\n")
-		self["summary_description"].setText(_("Execution progress:"))
 		print "Console: executing in run", self.run, " the command:", self.cmdlist[self.run]
 		if self.container.execute(self.cmdlist[self.run]): #start of container application failed...
 			self.runFinished(-1) # so we must call runFinished manual
@@ -54,7 +62,6 @@ class Console(Screen):
 			lastpage = self["text"].isAtLastPage()
 			str = self["text"].getText()
 			str += _("Execution finished!!")
-			self["summary_description"].setText(_("Execution finished!!"))
 			self["text"].setText(str)
 			if lastpage:
 				self["text"].lastPage()

@@ -170,13 +170,17 @@ int fbClass::SetMode(int nxRes, int nyRes, int nbpp)
 	m_number_of_pages = screeninfo.yres_virtual / nyRes;
 
 #endif
-	ioctl(fbFd, FBIOGET_VSCREENINFO, &screeninfo);
 
+	ioctl(fbFd, FBIOGET_VSCREENINFO, &screeninfo);
+	
 #if defined(__sh__)
+
 	xResSc=screeninfo.xres;
 	yResSc=screeninfo.yres;
 	stride=xRes*4;
+
 #else
+
 	if ((screeninfo.xres!=nxRes) && (screeninfo.yres!=nyRes) && (screeninfo.bits_per_pixel!=nbpp))
 	{
 		eDebug("SetMode failed: wanted: %dx%dx%d, got %dx%dx%d",
@@ -348,6 +352,7 @@ int fbClass::lock()
 	}
 	else
 		locked = 1;
+
 #if defined(__sh__)
 	outcfg.outputid = STMFBIO_OUTPUTID_MAIN;
 	if (ioctl( fbFd, STMFBIO_GET_OUTPUT_CONFIG, &outcfg ) < 0)
@@ -377,6 +382,7 @@ void fbClass::unlock()
 	if (locked == 2)  // re-enable manualBlit
 		enableManualBlit();
 	locked=0;
+
 #if defined(__sh__)
 	if (ioctl( fbFd, STMFBIO_SET_VAR_SCREENINFO_EX, &infoex ) < 0)
 		perror("STMFBIO_SET_VAR_SCREENINFO_EX\n");
@@ -395,6 +401,7 @@ void fbClass::unlock()
 
 	memset(lfb, 0, stride*yRes);
 #endif
+
 	SetMode(xRes, yRes, bpp);
 	PutCMAP();
 }

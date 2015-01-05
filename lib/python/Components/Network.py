@@ -1,5 +1,5 @@
-import re
 import os
+import re
 from socket import *
 from Components.Console import Console
 from Components.PluginComponent import plugins
@@ -41,7 +41,7 @@ class Network:
 		return self.remoteRootFS
 
 	def isBlacklisted(self, iface):
-		return iface in ('lo', 'wifi0', 'wmaster0', 'sit0', 'tun0', 'tap0')
+		return iface in ('lo', 'wifi0', 'wmaster0', 'sit0', 'tun0')
 
 	def getInterfaces(self, callback = None):
 		self.configuredInterfaces = []
@@ -453,10 +453,7 @@ class Network:
 	def restartNetworkFinished(self,extra_args):
 		( callback ) = extra_args
 		if callback is not None:
-			try:
-				callback(True)
-			except:
-				pass
+			callback(True)
 
 	def getLinkState(self,iface,callback):
 		cmd = self.ethtool_bin + " " + iface
@@ -608,10 +605,7 @@ class Network:
 		if self.activateInterfaceConsole:
 			if len(self.activateInterfaceConsole.appContainers) == 0:
 				if callback is not None:
-					try:
-						callback(True)
-					except:
-						pass
+					callback(True)
 
 	def sysfsPath(self, iface):
 		return '/sys/class/net/' + iface

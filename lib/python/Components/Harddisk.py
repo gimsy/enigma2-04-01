@@ -126,7 +126,7 @@ class Harddisk:
 		if hw_type == 'elite' or hw_type == 'premium' or hw_type == 'premium+' or hw_type == 'ultra' :
 			internal = "ide" in self.phys_path
 		else:
-			internal = "pci" in self.phys_path or "ahci" in self.phys_path
+			internal = "pci" in self.phys_path
 
 		if ide_cf:
 			ret = _("External (CF)")
@@ -177,7 +177,7 @@ class Harddisk:
 		dev = self.findMount()
 		if dev:
 			stat = os.statvfs(dev)
-			return int((stat.f_bfree/1000) * (stat.f_bsize/1024))
+			return int((stat.f_bfree/1000) * (stat.f_bsize/1000))
 		return -1
 
 	def numPartitions(self):
@@ -330,11 +330,7 @@ class Harddisk:
 			else:
 				# Prefer optimal alignment for performance
 				alignment = 'opt'
-			if size > 2097151:
-				parttype = 'gpt'
-			else:
-				parttype = 'msdos'
-			task.args += ['-a', alignment, '-s', self.disk_path, 'mklabel', parttype, 'mkpart', 'primary', '0%', '100%']
+			task.args += ['-a', alignment, '-s', self.disk_path, 'mklabel', 'gpt', 'mkpart', 'primary', '0%', '100%']
 		else:
 			task.setTool('sfdisk')
 			task.args.append('-f')
@@ -517,7 +513,7 @@ class Harddisk:
 			Console().ePopen(("sdparm", "sdparm", "--flexible", "--readonly", "--command=stop", self.disk_path))
 		else:
 			Console().ePopen(("hdparm", "hdparm", "-y", self.disk_path))
-
+			
 	def setIdleTime(self, idle):
 		self.max_idle_time = idle
 		if self.idle_running:
@@ -876,7 +872,7 @@ class HarddiskManager:
 
 	def getUserfriendlyDeviceName(self, dev, phys):
 		dev, part = self.splitDeviceName(dev)
-		description = _("External Storage %s") % dev
+		description = "External Storage %s" % dev
 		try:
 			description = readFile("/sys" + phys + "/model")
 		except IOError, s:
@@ -887,7 +883,7 @@ class HarddiskManager:
 				description = pdescription
 		# not wholedisk and not partition 1
 		if part and part != 1:
-			description += _(" (Partition %d)") % part
+			description += " (Partition %d)" % part
 		return description
 
 	def addMountedPartition(self, device, desc):

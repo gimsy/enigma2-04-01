@@ -19,7 +19,7 @@ eFilePushThread::eFilePushThread(int io_prio_class, int io_prio_level, int block
 	:prio_class(io_prio_class),
 	 prio(io_prio_level),
 	 m_sg(NULL),
-	 m_stop(1),
+	 m_stop(0),
 	 m_send_pvr_commit(0),
 	 m_stream_mode(0),
 	 m_blocksize(blocksize),
@@ -35,7 +35,6 @@ eFilePushThread::eFilePushThread(int io_prio_class, int io_prio_level, int block
 
 eFilePushThread::~eFilePushThread()
 {
-	stop(); /* eThread is borked, always call stop() from d'tor */
 	free(m_buffer);
 }
 
@@ -274,19 +273,19 @@ void eFilePushThread::start(ePtr<iTsSource> &source, int fd_dest)
 
 void eFilePushThread::stop()
 {
-	/* if we aren't running, don't bother stopping. */
-	if (m_stop == 1)
+		/* if we aren't running, don't bother stopping. */
+	if (!sync())
 		return;
 	m_stop = 1;
 	eDebug("eFilePushThread stopping thread");
 	m_run_cond.signal(); /* Break out of pause if needed */
 	sendSignal(SIGUSR1);
-	kill(); /* Kill means join actually */
+	kill(0); /* Kill means join actually */
 }
 
 void eFilePushThread::pause()
 {
-	if (m_stop == 1)
+	if (!sync())
 	{
 		eWarning("eFilePushThread::pause called while not running");
 		return;
@@ -305,9 +304,9 @@ void eFilePushThread::pause()
 
 void eFilePushThread::resume()
 {
-	if (m_stop != 2)
+	if (!sync())
 	{
-		eWarning("eFilePushThread::resume called while not paused");
+		eWarning("eFilePushThread::resume called while not running");
 		return;
 	}
 	/* Resume the paused thread by resetting the flag and
@@ -354,7 +353,7 @@ eFilePushThreadRecorder::eFilePushThreadRecorder(unsigned char* buffer, size_t b
 	m_buffersize(buffersize),
 	m_buffer(buffer),
 	m_overflow_count(0),
-	m_stop(1),
+	m_stop(0),
 	m_messagepump(eApp, 0)
 {
 	CONNECT(m_messagepump.recv_msg, eFilePushThreadRecorder::recvEvent);
@@ -427,12 +426,12 @@ void eFilePushThreadRecorder::start(int fd)
 void eFilePushThreadRecorder::stop()
 {
 	/* if we aren't running, don't bother stopping. */
-	if (m_stop == 1)
+	if (!sync())
 		return;
 	m_stop = 1;
 	eDebug("[eFilePushThreadRecorder] stopping thread."); /* just do it ONCE. it won't help to do this more than once. */
 	sendSignal(SIGUSR1);
-	kill();
+	kill(0);
 }
 
 void eFilePushThreadRecorder::sendEvent(int evt)
