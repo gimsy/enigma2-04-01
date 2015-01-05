@@ -29,9 +29,6 @@ enigma.eSocketNotifier = eBaseImpl.eSocketNotifier
 enigma.eConsoleAppContainer = eConsoleImpl.eConsoleAppContainer
 boxtype = getBoxType()
 
-if os.path.isfile("/usr/lib/enigma2/python/Plugins/Extensions/MediaPortal/plugin.pyo") and boxtype in ('dm7080','dm820'):
-	import pyo_patcher
-
 from traceback import print_exc
 profile("SimpleSummary")
 from Screens import InfoBar
@@ -58,7 +55,7 @@ from Components.config import config, configfile, ConfigText, ConfigYesNo, Confi
 InitFallbackFiles()
 
 profile("config.misc")
-config.misc.boxtype = ConfigText(default = boxtype)
+config.misc.boxtype = ConfigText(default = getBoxType())
 config.misc.blackradiopic = ConfigText(default = resolveFilename(SCOPE_ACTIVE_SKIN, "black.mvi"))
 radiopic = resolveFilename(SCOPE_ACTIVE_SKIN, "radio.mvi")
 if os.path.exists(resolveFilename(SCOPE_CONFIG, "radio.mvi")):
@@ -544,8 +541,8 @@ def runScreenTest():
 	vol = VolumeControl(session)
 	profile("Init:PowerKey")
 	power = PowerKey(session)
-	
-	if boxtype in ('mixosf5', 'mixosf7', 'mixoslumi', 'gi9196m', 'maram9', 'ixussone', 'ixussone', 'uniboxhd1', 'uniboxhd2', 'uniboxhd3', 'sezam5000hd', 'mbtwin', 'sezam1000hd', 'mbmini', 'atemio5x00', 'beyonwizt3'):
+
+	if getBoxType() == 'odinm9' or getBoxType() == 'maram9' or getBoxType() == 'ventonhdx' or getBoxType() == 'ebox5000' or getBoxType() == 'ebox7358' or getBoxType() == 'eboxlumi' or getBoxType() == 'ixussone' or getBoxType() == 'ixusszero' or getBoxType() == 'ini-1000ru' or getBoxType() == 'ini-1000sv':
 		profile("VFDSYMBOLS")
 		import Components.VfdSymbols
 		Components.VfdSymbols.SymbolsCheck(session)
@@ -563,8 +560,8 @@ def runScreenTest():
 
 	profile("RunReactor")
 	profile_final()
-
-	if boxtype in ('sf8', 'classm', 'axodin', 'axodinc', 'starsatlx', 'genius', 'evo'):
+		
+	if getBoxType() == 'odinm7' or getBoxType() == 'odinm6' or getBoxType() == 'xp1000s':
 		f = open("/dev/dbox/oled0", "w")
 		f.write('-E2-')
 		f.close()
@@ -642,9 +639,9 @@ def runScreenTest():
 				wptime = startTime[0] + 240 # Gigaboxes already starts 2 min. before wakeup time
 			else:
 				wptime = startTime[0]
-#		if not config.misc.SyncTimeUsing.value == "0" or getBrandOEM() == 'gigablue':
-#			print "dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime))
-#			setRTCtime(nowTime)
+		if not config.misc.SyncTimeUsing.value == "0" or getBoxType().startswith('gb'):
+			print "dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime))
+			setRTCtime(nowTime)
 		print "set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime+60))
 		setFPWakeuptime(wptime)
 		PowerTimerWakeupAuto = startTime[1] == 3 and startTime[2]
@@ -715,8 +712,8 @@ profile("LCD")
 import Components.Lcd
 Components.Lcd.InitLcd()
 Components.Lcd.IconCheck()
-# Disable internal clock vfd for ini5000 until we can adjust it for standby
-if boxtype in ('uniboxhd1', 'uniboxhd2', 'uniboxhd3', 'sezam5000hd', 'mbtwin', 'beyonwizt3'):
+# Disable internal clock vfd for Venton-HD1 until we can adjust it for standby
+if getBoxType() == 'ventonhdx':
 	try:
 		f = open("/proc/stb/fp/enable_clock", "r").readline()[:-1]
 		if f != '0':
@@ -724,7 +721,7 @@ if boxtype in ('uniboxhd1', 'uniboxhd2', 'uniboxhd3', 'sezam5000hd', 'mbtwin', '
 			f.write('0')
 			f.close()
 	except:
-		print "Error disable enable_clock for ini5000 boxes"
+		print "Error disable enable_clock for venton boxes"
 
 profile("UserInterface")
 import Screens.UserInterfacePositioner

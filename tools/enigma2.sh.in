@@ -146,7 +146,7 @@ case $ret in
 		;;
 	43)
 		init 1
-		;;
+		;;		
 	44)
 		# little hack but it will be fixed soon in drivers
 		if [ "$(cat /proc/stb/info/boxtype)" == 'ini-9000de' ]; then
@@ -160,7 +160,7 @@ case $ret in
 	45)
 		echo "    " > /dev/lcd0
 		/usr/bin/gigablue_wol
-		;;
+		;;		
 	*)
 		rm -f /tmp/.listen.camd.socket.ignore
 		;;
