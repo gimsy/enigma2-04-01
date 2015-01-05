@@ -178,13 +178,21 @@ struct eDVBChannelID
 	}
 };
 
-struct eServiceReferenceDVB: public eServiceReference
+class eServiceReferenceDVB: public eServiceReference
 {
-	int getServiceType() const { return data[0]; }
-	void setServiceType(int service_type) { data[0]=service_type; }
+public:
+	enum service_ref
+	{
+		ref_service_type= 0,
+		ref_service_id	= 1,
 
-	eServiceID getServiceID() const { return eServiceID(data[1]); }
-	void setServiceID(eServiceID service_id) { data[1]=service_id.get(); }
+	};
+
+	int getServiceType() const { return data[ref_service_type]; }
+	void setServiceType(int service_type) { data[ref_service_type]=service_type; }
+
+	eServiceID getServiceID() const { return eServiceID(data[ref_service_id]); }
+	void setServiceID(eServiceID service_id) { data[ref_service_id]=service_id.get(); }
 
 	eTransportStreamID getTransportStreamID() const { return eTransportStreamID(data[2]); }
 	void setTransportStreamID(eTransportStreamID transport_stream_id) { data[2]=transport_stream_id.get(); }
@@ -304,7 +312,7 @@ public:
 	// iStaticServiceInformation
 	RESULT getName(const eServiceReference &ref, std::string &name);
 	RESULT getEvent(const eServiceReference &ref, ePtr<eServiceEvent> &ptr, time_t start_time);
-	bool isCrypted(const eServiceReference &ref);
+	bool isCrypted();
 	int isPlayable(const eServiceReference &ref, const eServiceReference &ignore, bool simulate=false);
 	ePtr<iDVBTransponderData> getTransponderData(const eServiceReference &ref);
 
