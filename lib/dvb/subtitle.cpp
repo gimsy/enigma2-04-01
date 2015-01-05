@@ -24,7 +24,7 @@ int bitstream_get(bitstream *bit)
 {
 	int val;
 	bit->avail -= bit->size;
-	val = ((*bit->data) >> bit->avail) & ((1<<bit->n_object *object, int line, uint8_t *data, int len)size) - 1);
+	val = ((*bit->data) >> bit->avail) & ((1<<bit->size) - 1);
 	if (!bit->avail)
 	{
 		bit->data++;
@@ -49,7 +49,7 @@ static int extract_pts(pts_t &pts, uint8_t *pkt)
 		return -1;
 }
 
-void eDVBSubtitleParser::subtitle_process_line(subtitle_region *region, subtitle_regio
+void eDVBSubtitleParser::subtitle_process_line(subtitle_region *region, subtitle_region_object *object, int line, uint8_t *data, int len)
 {
 	bool subcentered = eConfigManager::getConfigBoolValue("config.subtitles.dvb_subtitles_centered");
 	int x = subcentered ? (region->width - len) /2 : object->object_horizontal_position;
