@@ -9,7 +9,7 @@ from Components.Console import Console
 from Components.Label import Label
 from enigma import getDesktop
 from os import access, R_OK
-from boxbranding import getBoxType, getBrandOEM
+from boxbranding import getBoxType
 
 def InitOsd():
 	SystemInfo["CanChange3DOsd"] = access('/proc/stb/fb/3dmode', R_OK) and True or False

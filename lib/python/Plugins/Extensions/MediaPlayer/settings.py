@@ -88,7 +88,6 @@ class MediaPlayerSettings(Screen,ConfigListScreen):
 		    "cancel": self.cancel,
 		    "ok": self.ok,
 		}, -2)
-		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):
 		self.setTitle(self.setup_title)

@@ -250,16 +250,16 @@ void bsodFatal(const char *component)
 			}
 			else if (access("/proc/stb/info/boxtype", F_OK) != -1) {
 				xml.cDataFromCmd("maxdigitalsoftware", "opkg list-installed 'xp*'");
-			}			
+			}
 			else if (access("/proc/stb/info/boxtype", F_OK) != -1) {
 				xml.cDataFromCmd("odinsoftware", "opkg list-installed 'odin*'");
-			}		
+			}
 			else if (access("/proc/stb/info/boxtype", F_OK) != -1) {
 				xml.cDataFromCmd("eboxsoftware", "opkg list-installed 'ebox*'");
-			}	
+			}
 			else if (access("/proc/stb/info/boxtype", F_OK) != -1) {
 				xml.cDataFromCmd("medialinksoftware", "opkg list-installed 'ixuss*'");
-			}				
+			}
 			xml.cDataFromCmd("gstreamersoftware", "opkg list-installed 'gst*'");
 			xml.close();
 		}

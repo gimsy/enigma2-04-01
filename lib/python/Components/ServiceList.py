@@ -2,7 +2,7 @@ from HTMLComponent import HTMLComponent
 from GUIComponent import GUIComponent
 from skin import parseColor, parseFont
 
-from enigma import eListboxServiceContent, eListbox, eServiceCenter, eServiceReference, gFont, eRect, eSize
+from enigma import eListboxServiceContent, eListbox, eServiceCenter, eServiceReference, gFont, eRect, eSize, getDesktop
 from Tools.LoadPixmap import LoadPixmap
 
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
@@ -59,6 +59,10 @@ class ServiceList(HTMLComponent, GUIComponent):
 		if pic:
 			self.l.setPixmap(self.l.picCrypto, pic)
 
+		pic = LoadPixmap(resolveFilename(SCOPE_ACTIVE_SKIN, "icons/record.png"))
+		if pic:
+			self.l.setPixmap(self.l.picRecord, pic)
+
 		self.root = None
 		self.mode = self.MODE_NORMAL
 		self.listHeight = None
@@ -102,6 +106,16 @@ class ServiceList(HTMLComponent, GUIComponent):
 					self.l.setColor(eListboxServiceContent.serviceEventProgressbarBorderColor, parseColor(value))
 				elif attrib == "colorEventProgressbarBorderSelected":
 					self.l.setColor(eListboxServiceContent.serviceEventProgressbarBorderColorSelected, parseColor(value))
+				elif attrib == "colorServiceRecorded":
+					self.l.setColor(eListboxServiceContent.serviceRecorded, parseColor(value))
+				elif attrib == "colorFallbackItem":
+					self.l.setColor(eListboxServiceContent.serviceItemFallback, parseColor(value))
+				elif attrib == "colorServiceSelectedFallback":
+					self.l.setColor(eListboxServiceContent.serviceSelectedFallback, parseColor(value))
+				elif attrib == "colorServiceDescriptionFallback":
+					self.l.setColor(eListboxServiceContent.eventForegroundFallback, parseColor(value))
+				elif attrib == "colorServiceDescriptionSelectedFallback":
+					self.l.setColor(eListboxServiceContent.eventForegroundSelectedFallback, parseColor(value))
 				elif attrib == "picServiceEventProgressbar":
 					pic = LoadPixmap(resolveFilename(SCOPE_ACTIVE_SKIN, value))
 					if pic:
@@ -120,6 +134,10 @@ class ServiceList(HTMLComponent, GUIComponent):
 					font = parseFont(value, ((1,1),(1,1)) )
 					self.ServiceNumberFontName = font.family
 					self.ServiceNumberFontSize = font.pointSize
+				elif attrib == "progressbarHeight":
+					self.l.setProgressbarHeight(int(value))
+				elif attrib == "progressbarBorderWidth":
+					self.l.setProgressbarBorderWidth(int(value))
 				else:
 					attribs.append((attrib, value))
 			self.skinAttributes = attribs
@@ -170,7 +188,7 @@ class ServiceList(HTMLComponent, GUIComponent):
 						config.servicelist.lastmode.save()
 						self.serviceList.saveChannel(ref)
 						return True
-				self.serviceList.enterUserbouquet(revert_radio_root)		
+				self.serviceList.enterUserbouquet(revert_radio_root)
 				print "[servicelist] service not found in any userbouquets"
 				if revert_mode == "tv":
 					self.serviceList.setModeTv()
@@ -270,10 +288,7 @@ class ServiceList(HTMLComponent, GUIComponent):
 		return dest
 
 	def setPlayableIgnoreService(self, ref):
-		try:
-			self.l.setIgnoreService(ref)
-		except:
-			pass
+		self.l.setIgnoreService(ref)
 
 	def setRoot(self, root, justSet=False):
 		self.root = root
@@ -287,7 +302,7 @@ class ServiceList(HTMLComponent, GUIComponent):
 		self.l.setRoot(self.root, False)
 		self.l.sort()
 		self.instance.moveSelectionTo(index)
-	
+
 	def removeCurrent(self):
 		self.l.removeCurrent()
 
@@ -326,6 +341,7 @@ class ServiceList(HTMLComponent, GUIComponent):
 		self.l.setCurrentMarked(state)
 
 	def setMode(self, mode):
+		screenwidth = getDesktop(0).size().width()
 		self.mode = mode
 		self.setItemsPerPage()
 		self.l.setItemHeight(self.ItemHeight)
@@ -336,7 +352,10 @@ class ServiceList(HTMLComponent, GUIComponent):
 		else:
 			self.l.setGetPiconNameFunc(None)
 
-		progressBarWidth = 52
+		if screenwidth and screenwidth == 1920:
+			progressBarWidth = 78
+		else:
+			progressBarWidth = 52
 		rowWidth = self.instance.size().width() - 30 #scrollbar is fixed 20 + 10 Extra marge
 
 		if mode == self.MODE_NORMAL or not config.usage.show_channel_numbers_in_servicelist.value:

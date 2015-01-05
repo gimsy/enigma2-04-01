@@ -69,7 +69,7 @@ class SoftwareUpdateChanges(Screen):
 	def getlog(self):
 		global ocram
 		try:
-			sourcefile = 'http://www.openvix.co.uk/feeds/%s/%s/%s-git.log' % (getImageDistro(), getImageVersion(), self.logtype)
+			sourcefile = 'http://enigma2.world-of-satellite.com/feeds/' + getImageVersion() + '/' + getBoxType() + '/'  + self.logtype + '-git.log'
 			sourcefile,headers = urllib.urlretrieve(sourcefile)
 			rename(sourcefile,'/tmp/' + self.logtype + '-git.log')
 			fd = open('/tmp/' + self.logtype + '-git.log', 'r')
@@ -78,12 +78,11 @@ class SoftwareUpdateChanges(Screen):
 		except:
 			releasenotes = '404 Not Found'
 		if '404 Not Found' not in releasenotes:
-			releasenotes = releasenotes.replace('[openvix] Zeus Release.', 'openvix: build 000')
 			releasenotes = releasenotes.replace('\nopenvix: build',"\n\nopenvix: build")
 			releasenotes = releasenotes.split('\n\n')
 			ver = -1
 			releasever = ""
-			viewrelease = ""
+			viewrelease=""
 			while not releasever.isdigit():
 				ver += 1
 				releasever = releasenotes[int(ver)].split('\n')

@@ -793,7 +793,7 @@ class GraphMultiEPG(Screen, HelpableScreen):
 		self["okactions"].csel = self
 		self["epgactions"] = HelpableActionMap(self, "EPGSelectActions",
 			{
-				"timerAdd":    (self.timerAdd,       _("Add/remove change timer for current event")),
+				"timerAdd":    (self.timerAdd,       _("Add/remove timer for current event")),
 				"info":        (self.infoKeyPressed, _("Show detailed event info")),
 				"red":         (self.zapTo,          _("Zap to selected channel")),
 				"yellow":      (self.swapMode,       _("Switch between normal mode and list mode")),	

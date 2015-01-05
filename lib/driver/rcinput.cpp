@@ -19,8 +19,6 @@ void eRCDeviceInputDev::handleCode(long rccode)
 
 	if (ev->type != EV_KEY)
 		return;
-		
-	eDebug("%x %x %x", ev->value, ev->code, ev->type);
 
 	int km = iskeyboard ? input->getKeyboardMode() : eRCInput::kmNone;
 
@@ -90,10 +88,18 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		}
 	}
 
+#if KEY_F1_TO_KEY_F2
+	if (ev->code == KEY_F1)
+	{
+		/* ET7X00 Remote rc has a Funktion key, which sends KEY_F1 events but we need a KEY_F2. Correct this, so we do not have to place hacks in the keymaps. */
+		ev->code = KEY_F2;
+	}
+#endif
+
 #if KEY_PLAY_ACTUALLY_IS_KEY_PLAYPAUSE
 	if (ev->code == KEY_PLAY)
 	{
-		if ((id == "dreambox advanced remote control (native)")  || (id == "bcm7325 remote control"))
+		if (id == "dreambox advanced remote control (native)")
 		{
 			/* 8k rc has a KEY_PLAYPAUSE key, which sends KEY_PLAY events. Correct this, so we do not have to place hacks in the keymaps. */
 			ev->code = KEY_PLAYPAUSE;

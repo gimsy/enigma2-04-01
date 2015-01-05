@@ -244,11 +244,9 @@ class CableTransponderSearchSupport:
 
 		bin_name = None
 		if tunername == "CXD1981":
-			bin_name = "CXD1981"
 			cmd = "cxd1978 --init --scan --verbose --wakeup --inv 2 --bus %d" % bus
 		elif tunername.startswith("Sundtek"):
-			bin_name = "mediaclient"
-			cmd = "/opt/bin/mediaclient --blindscan %d" % nim_idx
+			cmd = "mediaclient --blindscan %d" % nim_idx
 		else:
 			bin_name = GetCommand(nim_idx)
 			cmd = "%(BIN_NAME)s --init --scan --verbose --wakeup --inv 2 --bus %(BUS)d" % {'BIN_NAME':bin_name , 'BUS':bus}
@@ -1141,7 +1139,7 @@ class ScanSetup(ConfigListScreen, Screen, CableTransponderSearchSupport):
 			else:
 				self.session.open(MessageBox, _("Nothing to scan!\nPlease setup your tuner settings before you start a service scan."), MessageBox.TYPE_ERROR)
 
-	def startScanCallback(self, answer=True):
+	def startScanCallback(self, answer):
 		if answer:
 			self.doCloseRecursive()
 
@@ -1159,12 +1157,8 @@ class ScanSimple(ConfigListScreen, Screen, CableTransponderSearchSupport):
 	def getNetworksForNim(self, nim):
 		if nim.isCompatible("DVB-S"):
 			networks = nimmanager.getSatListForNim(nim.slot)
-		elif nim.isCompatible("DVB-C"):
-			networks = nimmanager.getTranspondersCable(nim.slot)
-		elif nim.isCompatible("DVB-T"):
-			networks = nimmanager.getTerrestrialDescription(nim.slot)
 		elif not nim.empty:
-			networks = [ nim.type ]
+			networks = [ nim.type ] # "DVB-C" or "DVB-T". TODO: seperate networks for different C/T tuners, if we want to support that.
 		else:
 			# empty tuners provide no networks.
 			networks = [ ]

@@ -100,7 +100,7 @@ class TitleList(Screen, HelpableScreen):
 		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):
-		self.setTitle(_("DVD Titlelist"))
+		self.setTitle(_("DVD titlelist"))
 
 	def checkBackgroundJobs(self):
 		for job in job_manager.getPendingJobs():
@@ -139,7 +139,7 @@ class TitleList(Screen, HelpableScreen):
 		job_manager.in_background = False
 		self.session.openWithCallback(self.JobViewCB, JobView, self.backgroundJob)
 		self.backgroundJob = None
-	
+
 	def titleProperties(self):
 		if self.getCurrentTitle():
 			self.session.openWithCallback(self.updateTitleList, TitleProperties.TitleProperties, self, self.project, self["titles"].getIndex())

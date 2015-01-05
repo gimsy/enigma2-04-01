@@ -204,7 +204,7 @@ class doFlashImage(Screen):
 		machinename = getMachineName()
 		if box in ('uniboxhd1', 'uniboxhd2', 'uniboxhd3'):
 			box = "ventonhdx"
-		elif box == 'odinm6':
+		elif box == "odinm6":
 			box = getMachineName().lower()
 		elif box == "inihde" and machinename.lower() == "xpeedlx":
 			box = "xpeedlx"

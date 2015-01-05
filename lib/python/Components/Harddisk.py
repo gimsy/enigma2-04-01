@@ -126,7 +126,7 @@ class Harddisk:
 		if hw_type == 'elite' or hw_type == 'premium' or hw_type == 'premium+' or hw_type == 'ultra' :
 			internal = "ide" in self.phys_path
 		else:
-			internal = "pci" in self.phys_path
+			internal = "pci" in self.phys_path or "ahci" in self.phys_path
 
 		if ide_cf:
 			ret = _("External (CF)")
@@ -177,7 +177,7 @@ class Harddisk:
 		dev = self.findMount()
 		if dev:
 			stat = os.statvfs(dev)
-			return int((stat.f_bfree/1000) * (stat.f_bsize/1000))
+			return int((stat.f_bfree/1000) * (stat.f_bsize/1024))
 		return -1
 
 	def numPartitions(self):
@@ -330,7 +330,11 @@ class Harddisk:
 			else:
 				# Prefer optimal alignment for performance
 				alignment = 'opt'
-			task.args += ['-a', alignment, '-s', self.disk_path, 'mklabel', 'gpt', 'mkpart', 'primary', '0%', '100%']
+			if size > 2097151:
+				parttype = 'gpt'
+			else:
+				parttype = 'msdos'
+			task.args += ['-a', alignment, '-s', self.disk_path, 'mklabel', parttype, 'mkpart', 'primary', '0%', '100%']
 		else:
 			task.setTool('sfdisk')
 			task.args.append('-f')
@@ -809,7 +813,7 @@ class HarddiskManager:
 				self.on_partition_list_change("add", p)
 			# see if this is a harddrive
 			l = len(device)
-			if l and (not device[l-1].isdigit() or device == 'mmcblk0'):
+			if l and not device[l-1].isdigit():
 				self.hdd.append(Harddisk(device, removable))
 				self.hdd.sort()
 				SystemInfo["Harddisk"] = True
