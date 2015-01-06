@@ -129,7 +129,6 @@ class NumberZapExtSetupScreen(Screen, ConfigListScreen):
 		self.cfg_acount = getConfigListEntry(_("alternative service counter in bouquets"), self.NZE.acount)
 		self.cfg_picons = getConfigListEntry(_("enable picons"), self.NZE.picons)
 		self.cfg_picondir = getConfigListEntry(_("picons directory:"), self.NZE.picondir)
-		self.cfg_hotkey = getConfigListEntry(_("enable number hotkeys"), self.NZE.hotkey)
 
 	def createSetup(self):
 		list = [ self.cfg_enable ]
@@ -138,10 +137,6 @@ class NumberZapExtSetupScreen(Screen, ConfigListScreen):
 			list.append(self.cfg_acount)
 			list.append(self.cfg_picons)
 			if self.NZE.picons.value:
-				list.append(self.cfg_picondir)
-			list.append(self.cfg_hotkey)
-			if self.NZE.hotkey.value:
-				list.append(getConfigListEntry(_("confirmation on hotkey action"), self.NZE.action.confirm))
 				list.append(getConfigListEntry(_("Shutdown"), self.NZE.action.shutdown))
 				list.append(getConfigListEntry(_("Reboot"), self.NZE.action.reboot))
 				list.append(getConfigListEntry(_("Restart GUI"), self.NZE.action.restart))
@@ -150,13 +145,6 @@ class NumberZapExtSetupScreen(Screen, ConfigListScreen):
 				list.append(getConfigListEntry(_("Service Info"), self.NZE.action.service_info))
 		self["config"].list = list
 		self["config"].l.setList(list)
-
-	def newConfig(self):
-		cur = self["config"].getCurrent()
-		if cur in (self.cfg_enable, self.cfg_hotkey, self.cfg_picons):
-			self.createSetup()
-		elif cur == self.cfg_picondir:
-			self.keyOk()
 
 	def keyOk(self):
 		cur = self["config"].getCurrent()
