@@ -9,7 +9,7 @@ from Components.Console import Console
 from Components.Label import Label
 from enigma import getDesktop
 from os import access, R_OK
-from boxbranding import getBoxType
+from boxbranding import getBoxType, getBrandOEM
 
 def InitOsd():
 	SystemInfo["CanChange3DOsd"] = access('/proc/stb/fb/3dmode', R_OK) and True or False
@@ -539,3 +539,4 @@ class OSD3DSetupScreen(Screen, ConfigListScreen):
 			self.session.openWithCallback(self.cancelConfirm, MessageBox, _("Really close without saving settings?"))
 		else:
 			self.close()
+
