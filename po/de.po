@@ -1757,15 +1757,6 @@ msgstr "Benutze Picons"
 msgid "picons directory:"
 msgstr "Picon Verzeichnis:"
 
-msgid "enable number hotkeys"
-msgstr "Benutze Zahlen Schnelltasten"
-
-msgid "hotkey action have priority"
-msgstr "Schnelltaste hat Vorrang"
-
-msgid "confirmation on hotkey action"
-msgstr "Bestätigung bei Schnelltaste Benutzung"
-
 msgid "Change pin code"
 msgstr "PIN Code ändern"
 
@@ -4764,9 +4755,6 @@ msgstr "Tastaturlayout"
 
 msgid "Keyboard setup"
 msgstr "Tastatur Einstellungen"
-
-msgid "HotKey Settings"
-msgstr "HotKey Tasten-Belegungen"
 
 msgid "Button setup for"
 msgstr "Button Einstellungen für"
@@ -12911,7 +12899,6 @@ msgstr ""
 msgid "Setup Usage"
 msgstr "Einstellungen"
 
-# hotkey translation
 #, python-format
 msgid "Deep-Standby"
 msgstr "Ausschalten - Deep Standby"
