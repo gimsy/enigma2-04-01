@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: enigma2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-19 23:44+0100\n"
-"PO-Revision-Date: 2014-12-16 17:25+0100\n"
-"Last-Translator: Koivo <koivo@hdfreaks.cc>\n"
+"PO-Revision-Date: 2015-01-7 01:16+0100\n"
+"Last-Translator: opendroid-Team <opendroid2013@gmail.com>\n"
 "Language-Team: AndyBlacburn, j-ot&Trial\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -1757,6 +1757,15 @@ msgstr "Benutze Picons"
 msgid "picons directory:"
 msgstr "Picon Verzeichnis:"
 
+msgid "enable number hotkeys"
+msgstr "Benutze Zahlen Schnelltasten"
+
+msgid "hotkey action have priority"
+msgstr "Schnelltaste hat Vorrang"
+
+msgid "confirmation on hotkey action"
+msgstr "Bestätigung bei Schnelltaste Benutzung"
+
 msgid "Change pin code"
 msgstr "PIN Code ändern"
 
@@ -2739,6 +2748,9 @@ msgstr "DVD Format"
 msgid "DVD file browser"
 msgstr "DVD Datei Browser"
 
+msgid "DVD media"
+msgstr "DVD Medien"
+
 msgid "DVD player"
 msgstr "DVD Player"
 
@@ -3438,8 +3450,8 @@ msgstr "Enigma2 Skinauswahl"
 msgid "Enimga2 Changes"
 msgstr "Enigma2 Änderungen"
 
-msgid "OpenHDF E2 Changes"
-msgstr "OpenHDF E2 Änderungen"
+msgid "Opendroid E2 Changes"
+msgstr "Opendroid E2 Änderungen"
 
 msgid "Enter main menu..."
 msgstr "Öffne Hauptmenü..."
@@ -4311,8 +4323,8 @@ msgstr ""
 "Mit 'JA' werden 'SRC' Pakete im Browser angezeigt. 'SRC' Dateien enthälten "
 "den Quelltext wenn verfügbar falls man Änderungen vornehmen möchte und kann."
 
-msgid "If set to 'yes' it will show the 'HDFreaks' packages in browser."
-msgstr "Mit 'JA' werden Pakete von den HDFreaks im Browser angezeigt."
+msgid "If set to 'yes' it will show the 'Opendroid' packages in browser."
+msgstr "Mit 'JA' werden Pakete von den Opendroid im Browser angezeigt."
 
 msgid "If set to 'yes' it will show the 'DRIVERS' packages in browser."
 msgstr "Mit 'JA' werden Treiber Pakete im Browser angezeigt."
@@ -4752,6 +4764,9 @@ msgstr "Tastaturlayout"
 
 msgid "Keyboard setup"
 msgstr "Tastatur Einstellungen"
+
+msgid "HotKey Settings"
+msgstr "HotKey Tasten-Belegungen"
 
 msgid "Button setup for"
 msgstr "Button Einstellungen für"
@@ -7770,8 +7785,8 @@ msgstr "Zeige Display Icons"
 msgid "Show E2 Log"
 msgstr "Zeige E2 Log"
 
-msgid "Show OpenHDF Log"
-msgstr "Zeige OpenHDF Log"
+msgid "Show Opendroid Log"
+msgstr "Zeige Opendroid Log"
 
 msgid "Show OE-A Log"
 msgstr "Zeige OE-A Log"
@@ -8043,8 +8058,8 @@ msgstr "Zeige Zeit verbleibend/verstrichen"
 msgid "Show translation packages"
 msgstr "Zeige Pakete mit den Sprachdateien für die Übersetzung an."
 
-msgid "Show HDFreaks module packages"
-msgstr "Zeige HDFreaks Pakete an."
+msgid "Show Opendroid module packages"
+msgstr "Zeige Opendroid Pakete an."
 
 msgid "Show drivers packages"
 msgstr "Zeige Treiber Pakete an."
@@ -12375,8 +12390,8 @@ msgstr "Achtung, das Update wurde noch nicht getestet !!"
 msgid "Update at your own risk"
 msgstr "Update auf eigenes Risiko"
 
-msgid "For more information see http://www.hdfreaks.cc"
-msgstr "Mehr Informationen unter http://www.hdfreaks.cc"
+msgid "For more information see http://www.droidsat.org"
+msgstr "Mehr Informationen unter http://www.droidsat.org"
 
 msgid "But you have activated \"Install unstable updates\""
 msgstr "Aber Sie haben \"Installiere unstabile Updates\" aktiviert"
@@ -12896,6 +12911,7 @@ msgstr ""
 msgid "Setup Usage"
 msgstr "Einstellungen"
 
+# hotkey translation
 #, python-format
 msgid "Deep-Standby"
 msgstr "Ausschalten - Deep Standby"
